@@ -1,5 +1,4 @@
 import utils from "../utils.js";
-import crypto from "crypto";
 
 export class ProductManager {
     static product;
