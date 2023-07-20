@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import { engine } from "express-handlebars";
 import { __filename, __dirname } from "./utils.js";
 import { guardarProducto } from "./services/productUtils.js";
+import { deleteProduct } from './services/productUtils.js';
 
 const app = express();
 const PORT = 8080;
@@ -53,12 +54,10 @@ io.on("connection", (socket) => {
         io.emit("nuevoProductoAgregado", newProduct);
     });
 
-    socket.on("productoEliminado", (productID) => {
-      // Eliminar el producto de la lista en el cliente
-    const productoElement = document.querySelector(`[data-id="${productID}"]`);
-    if (productoElement) {
-        productoElement.parentElement.remove();
-    }
+    socket.on("delete-product", productID => {
+        const {id} = productID
+        deleteProduct(id)
+        socket.emit('delete-product', id)
     });
 
     socket.on("disconnect", () => {

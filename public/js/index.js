@@ -86,6 +86,20 @@ function updateProductList(products) {
 }
 
 // Función para eliminar un producto
-function eliminarProducto(productID) {
+/* function eliminarProducto(productID) {
     socket.emit("eliminarProducto", productID);
-}
+} */
+
+const deleteButton = document.querySelectorAll(".deleteButton")
+deleteButton.forEach(button => {
+    button.addEventListener("click", () => {
+        const id = parseInt(button.id)
+        const productId = {
+            id: id
+        }
+        //envio el socket para recibirlo en el servidor
+        socket.emit('delete-product', productId)
+        //fuerzo el refresh para que se actualice la lista. 
+        location.reload()
+    })
+})

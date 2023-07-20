@@ -76,7 +76,7 @@ li p {
     margin-bottom: 5px;
 }
 
-.btnEliminar{
+.deleteButton{
     width: 100px;
     padding: 10px 20px;
     background-color:  rgb(25, 78, 25);
