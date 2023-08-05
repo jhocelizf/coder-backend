@@ -75,11 +75,11 @@ function updateProductList(products) {
     <p>Thumbnail: ${product.thumbnail}</p>
     <button class="btnEliminar" data-id="${product.id}">Eliminar</button>
     `;
-
+/* 
         const btnEliminar = li.querySelector(".btnEliminar");
         btnEliminar.addEventListener("click", () => {
             eliminarProducto(product.id);
-        });
+        }); */
 
         productList.appendChild(li);
     });
@@ -92,8 +92,11 @@ function updateProductList(products) {
 
 const deleteButton = document.querySelectorAll(".deleteButton")
 deleteButton.forEach(button => {
-    button.addEventListener("click", () => {
-        const id = parseInt(button.id)
+    button.addEventListener("click", (e) => {
+        e.preventDefault()
+        // const id = button.id
+        const id = button.getAttribute("data-id")
+        console.log(id);
         const productId = {
             id: id
         }
@@ -103,3 +106,26 @@ deleteButton.forEach(button => {
         location.reload()
     })
 })
+
+let user = null;
+
+socket.on('connect', () => {
+    user = prompt('Por favor pone tu nombre');
+});
+
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.getElementById('chat-messages');
+
+chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = document.getElementById('message').value;
+    socket.emit('new-message', { user, message });
+    chatForm.reset();
+});
+
+socket.on('message-received', (data) => {
+    const { user, message } = data;
+    const messageElement = document.createElement('p');
+    messageElement.innerHTML = `<strong>${user}:</strong> ${message}`;
+    chatMessages.appendChild(messageElement);
+});

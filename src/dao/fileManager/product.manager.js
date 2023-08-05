@@ -1,4 +1,9 @@
+import { log } from "console";
 import utils from "../utils.js";
+import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { __dirname } from "../utils.js";
 
 export class ProductManager {
     static product;
@@ -10,18 +15,19 @@ export class ProductManager {
     }
     //static correlativoId = 0;
     async addProduct(product) {
-        this.products = [];
         this.products = await this.getProducts();
         if (this.products?.some((el) => el.code === product.code)) {
             let error = new Error("Ya existe un producto con ese código");
             error.statusCode = 400;
             throw error;
         }
-        ProductManager.correlativoId = this.products.push({
+        console.log(crypto.randomUUID());
+        this.products.push({
             ...product,
-            id: this.products.length
-                ? this.products[this.products.length - 1].id + 1
-                : 0,
+            // id: this.products.length > 0
+            //     ? this.products[this.products.length - 1].id + 1
+            //     : 0,
+            id: crypto.randomUUID()
         });
         utils.writeFile(this.path, this.products);
     }
@@ -92,12 +98,16 @@ export class ProductManager {
         }
     }
 
+    
+
 }
 
-export default {
-    ProductManager,
-};
+export function obtenerListaDeProductos() {
+    const filePath = path.join(__dirname, "./products.json");
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(fileContent);
+    return data;
+}
 
-
-
+export default ProductManager;
 

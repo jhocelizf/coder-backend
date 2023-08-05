@@ -1,16 +1,37 @@
 import express from "express";
+import mongoose from "mongoose";
 import productRouter from "./router/products.router.js";
-import cartRouter from "./router/carts.router.js";
+import cartRouter from "./router/cart.router.js";
 import viewsRouter from "./router/views.router.js";
 import realtimeRouter from "./router/realTimeProduct.router.js";
+import chatRouter from "./router/chat.router.js";
 import { Server } from "socket.io";
 import { engine } from "express-handlebars";
 import { __filename, __dirname } from "./utils.js";
-import { guardarProducto } from "./services/productUtils.js";
-import { deleteProduct } from './services/productUtils.js';
+import dotenv from "dotenv";
+// import ProductManager from "./services/ProductManager.js"
+// const productManager = new ProductManager("products.json")
 
+dotenv.config();
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
+const httpServer = app.listen(PORT, () => {
+    console.log(`El servidor esta corriendo en el puerto ${PORT}`);
+});
+const MONGO_URI = process.env.MONGO_URI;
+// const connection = mongoose.connect(MONGO_URI);
+
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser :true ,
+    useUnifiedTopology: true,
+}).then(
+    () => {
+        console.log('Conexion a la base de datos establecida');
+    },
+    (error) => {
+        console.log("Error en la conexion a la base de datos", error);
+    }
+);  
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,14 +41,12 @@ app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 
+
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/", viewsRouter);
 app.use("/realtime", realtimeRouter);
-
-const httpServer = app.listen(PORT, () => {
-    console.log(`El servidor esta corriendo en el puerto ${PORT}`);
-});
+app.use("/chat", chatRouter);
 
 httpServer.on("error", (err) => {
     console.log(err);
@@ -49,14 +68,17 @@ io.on("connection", (socket) => {
     // Escuchar evento 'agregarProducto' y emitir 'nuevoProductoAgregado'
     socket.on("agregarProducto", (newProduct) => {
         console.log("Nuevo producto recibido backend:", newProduct);
-        guardarProducto(newProduct);
+        // guardarProducto(newProduct); 
+        productManager.addProduct(newProduct);
         // Agregar el nuevo producto a la lista de productos
         io.emit("nuevoProductoAgregado", newProduct);
     });
 
     socket.on("delete-product", productID => {
-        const {id} = productID
-        deleteProduct(id)
+        const { id } = productID
+        // deleteProduct(id)
+        console.log(id);
+        productManager.deleteProductById(id)
         socket.emit('delete-product', id)
     });
 
@@ -64,7 +86,5 @@ io.on("connection", (socket) => {
         console.log("Cliente desconectado");
     });
 });
-
-
 
 

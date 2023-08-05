@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { __filename, __dirname } from "../utils.js";
-import { obtenerListaDeProductos } from "../services/productUtils.js";
+// import { obtenerListaDeProductos } from "../services/ProductManager.js";
 
 const productRouter = Router();
 
@@ -9,5 +9,6 @@ productRouter.get("/", (req, res) => {
 
     res.render("home", { products });
 });
+
 
 export default productRouter;

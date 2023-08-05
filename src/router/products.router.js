@@ -1,15 +1,35 @@
 import { Router } from "express";
-import { ProductManager } from "../models/ProductManager.js";
+// import { ProductManager } from "../services/ProductManager.js";
+import ProductModel from "../dao/mongoManager/models/product.model.js";
+
 
 const router = Router();
 let products = [];
-const productManager = new ProductManager("products.json");
+// const productManager = new ProductManager("products.json");
+
+// router.get("/", async (res, req) => {
+//     try{
+//         const result = await ProductModel.find();
+//         res.json({
+//             data: result,
+//             message: result.length ? "Hay productos" : "No hay productos",
+//         });
+//     } catch (error) {}
+// });
+
+
+// sirve
+router.get('/', async (req, res) => {
+    const result = await ProductModel.find()
+    res.send(result)
+})
 
 
 router.get("/", async (req, res) => {
     const { limit } = req.query;
     try {
-        const resultProducts = await productManager.getProducts();
+        // const resultProducts = await productManager.getProducts();
+        const resultProducts = await ProductModel.getProducts();
         if (limit) {
             let tempArray = resultProducts.filter((dat, index) => index < limit);
 
@@ -22,10 +42,12 @@ router.get("/", async (req, res) => {
     }
 });
 
+// esto sirve, se pone asi http://localhost:8080/api/products/64cd0837e8f032c3cd11d553
 router.get("/:pid", async (req, res) => {
     const { pid } = req.params;
 
-    let product = await productManager.getProductById(pid);
+    // let product = await productManager.getProductById(pid);
+    let product = await ProductModel.find(pid);
 
     if (product) {
         res.json({ message: "listo", data: product });
@@ -36,17 +58,18 @@ router.get("/:pid", async (req, res) => {
     }
 });
 
+// esto sirve
 router.post("/", async (req, res) => {
-    const { title, description, code, price, stock, category, thumbnail,
+    const { title, description, code, price, stock, category, image,
     } = req.body;
     if (!title || !description || !code || !price || !stock || !category) {
         return res.status(401).json({ message: "faltan datos" });
     }
-    if (!thumbnail) {
+    if (!image) {
         req.body.thumbnail = "";
     }
     try {
-        const response = await productManager.addProduct(req.body);
+        const response = await ProductModel.create(req.body);
         res.json({
             message: "producto agregado",
             data: response,
@@ -59,6 +82,7 @@ router.post("/", async (req, res) => {
     }
 });
 
+// funciona
 router.put("/:pid", async (req, res) => {
     const { pid } = req.params;
     const {
@@ -66,13 +90,13 @@ router.put("/:pid", async (req, res) => {
         description,
         code,
         price,
-        status,
         stock,
         category,
-        thumbnails,
+        image,
     } = req.body;
     const productTemp = {};
-    let product = await productManager.getProductById(pid);
+    // let product = await productManager.getProductById(pid);
+    let product = await ProductModel.findByIdAndUpdate(pid);
 
     if (product) {
         ///actualizar
@@ -81,10 +105,9 @@ router.put("/:pid", async (req, res) => {
                 !description,
                 !code,
                 !price,
-                !status,
                 !stock,
                 !category,
-                !thumbnails)
+                !image)
         ) {
             res.json({ message: "faltan datos" });
         }
@@ -92,13 +115,12 @@ router.put("/:pid", async (req, res) => {
         productTemp.description = description;
         productTemp.code = code;
         productTemp.price = price;
-        productTemp.status = status;
         productTemp.stock = stock;
         productTemp.category = category;
-        productTemp.thumbnails = thumbnails;
+        productTemp.image = image;
 
         //actualizamos el producto en el archivo
-        let result = await productManager.updateProductById((pid),
+        let result = await ProductModel.findByIdAndUpdate((pid),
             productTemp
         );
 
@@ -110,11 +132,12 @@ router.put("/:pid", async (req, res) => {
     }
 });
 
+// este sirve
 router.delete("/:pid", async (req, res) => {
     try {
         // Eliminar un producto por su ID
         const pid = req.params.pid;
-        await productManager.deleteProductById(pid);
+        await ProductModel.findByIdAndDelete(pid);
         res.send({ status: "Success", message: `Producto eliminado con éxito!` });
     } catch (error) {
         res
