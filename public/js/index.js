@@ -48,7 +48,7 @@ socket.on("nuevoProductoAgregado", (newProduct) => {
 });
 
 // Actualizar la lista de productos
-function updateProductList(products) {
+/* function updateProductList(products) {
     const productList = document.getElementById("productList");
     productList.innerHTML = "";
 
@@ -58,7 +58,7 @@ function updateProductList(products) {
         productList.appendChild(li);
     });
 }
-
+ */
 
 // Actualizar la lista de productos
 function updateProductList(products) {
@@ -75,20 +75,9 @@ function updateProductList(products) {
     <p>Thumbnail: ${product.thumbnail}</p>
     <button class="btnEliminar" data-id="${product.id}">Eliminar</button>
     `;
-/* 
-        const btnEliminar = li.querySelector(".btnEliminar");
-        btnEliminar.addEventListener("click", () => {
-            eliminarProducto(product.id);
-        }); */
-
         productList.appendChild(li);
     });
 }
-
-// Función para eliminar un producto
-/* function eliminarProducto(productID) {
-    socket.emit("eliminarProducto", productID);
-} */
 
 const deleteButton = document.querySelectorAll(".deleteButton")
 deleteButton.forEach(button => {
@@ -107,25 +96,3 @@ deleteButton.forEach(button => {
     })
 })
 
-let user = null;
-
-socket.on('connect', () => {
-    user = prompt('Por favor pone tu nombre');
-});
-
-const chatForm = document.getElementById('chat-form');
-const chatMessages = document.getElementById('chat-messages');
-
-chatForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const message = document.getElementById('message').value;
-    socket.emit('new-message', { user, message });
-    chatForm.reset();
-});
-
-socket.on('message-received', (data) => {
-    const { user, message } = data;
-    const messageElement = document.createElement('p');
-    messageElement.innerHTML = `<strong>${user}:</strong> ${message}`;
-    chatMessages.appendChild(messageElement);
-});

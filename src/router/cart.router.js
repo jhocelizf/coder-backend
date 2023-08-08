@@ -47,7 +47,6 @@ router.get("/:cid", async (req, res) => {
     }
 });
 
-// no anda no da la cantindad
 router.post("/:cid/product/:pid", async (req, res) => {
     const idCart = req.params.cid;
     const idProduct = req.params.pid;

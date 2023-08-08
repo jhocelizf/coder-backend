@@ -9,6 +9,8 @@ import { Server } from "socket.io";
 import { engine } from "express-handlebars";
 import { __filename, __dirname } from "./utils.js";
 import dotenv from "dotenv";
+import MessageModel from "./dao/mongoManager/models/message.model.js";
+import ProductModel from "./dao/mongoManager/models/product.model.js";
 // import ProductManager from "./services/ProductManager.js"
 // const productManager = new ProductManager("products.json")
 
@@ -19,10 +21,9 @@ const httpServer = app.listen(PORT, () => {
     console.log(`El servidor esta corriendo en el puerto ${PORT}`);
 });
 const MONGO_URI = process.env.MONGO_URI;
-// const connection = mongoose.connect(MONGO_URI);
 
 mongoose.connect(MONGO_URI, {
-    useNewUrlParser :true ,
+    useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(
     () => {
@@ -31,7 +32,7 @@ mongoose.connect(MONGO_URI, {
     (error) => {
         console.log("Error en la conexion a la base de datos", error);
     }
-);  
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -54,12 +55,16 @@ httpServer.on("error", (err) => {
 
 const io = new Server(httpServer);
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     console.log("Nuevo cliente conectado");
+    socket.on("new-user", (data) => {
+        socket.user = data.user;
+        socket.id = data.id;})
 
     // Manejar eventos personalizados
     socket.on("mensaje", (data) => {
         console.log("Mensaje recibido:", data);
+
 
         // Enviar una respuesta al cliente
         socket.emit("respuesta", "Mensaje recibido correctamente");
@@ -82,9 +87,25 @@ io.on("connection", (socket) => {
         socket.emit('delete-product', id)
     });
 
-    socket.on("disconnect", () => {
-        console.log("Cliente desconectado");
+    const productos = await ProductModel.find({}).lean()
+    socket.emit("update-products", productos)
+    socket.on("guardar-mensaje", (data) => {
+        MessageModel.insertMany([data])
+    })
+
+    io.emit("nuevo-usuario-conectado", {
+        user: socket.user,
+        id: socket.id,
     });
-});
+    const mensajes = await MessageModel.find({}).lean()
+        socket.emit("enviar-mensajes", mensajes)
+        socket.on("Nuevos-mensajes", (data) => {
+            console.log(data + " nuevos mensajes")
+        })
+
+        socket.on("disconnect", () => {
+            console.log("Cliente desconectado");
+        });
+    });
 
 
