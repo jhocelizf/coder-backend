@@ -8,36 +8,42 @@ let user;
 Swal.fire({
     title: 'Escribe tu usuario',
     input: 'text',
+    confirmButtonText: "Cool",
     inputAttributes: {
         autocapitalize: 'off'
     },
-    showCancelButton: true,
+    showCancelButton: false,
     confirmButtonText: 'Aceptar',
-    showLoaderOnConfirm: true,
-    preConfirm: (login) => {
-        return fetch(`//api.github.com/users/${login}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText)
-                }
-                return response.json()
-            })
-            .catch(error => {
-                Swal.showValidationMessage(
-                    `Request failed: ${error}`
-                )
-            })
+    inputValidator: (value) => {
+        if (!value) {
+            return "Debe ingresar un nombre de usuario";
+        }
     },
-    allowOutsideClick: () => !Swal.isLoading()
+    showLoaderOnConfirm: true,
+        preConfirm: (login) => {
+            return fetch(`//api.github.com/users/${login}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(response.statusText)
+                    }
+                    return response.json()
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(
+                        `Request failed: ${error}`
+                    )
+                })
+        },
+        allowOutsideClick: () => false
 }).then((result) => {
-    if (result.isConfirmed) {
-        Swal.fire({
-            title: `${result.value.login}'s avatar`,
-            imageUrl: result.value.avatar_url
-        })
-        user = result.value.login
-    }
-})
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: `${result.value.login}'s avatar`,
+                        imageUrl: result.value.avatar_url
+                    })
+                    user = result.value.login
+                }
+            })
 
 let chatBox = document.getElementById('chatBox')
 
@@ -81,4 +87,4 @@ socket.on("nuevo-usuario-conectado", (data) => {
             toast: true,
             position: "top-end",
         });
-    });
+});
