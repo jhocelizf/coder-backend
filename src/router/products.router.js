@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
     const { limit } = req.query;
     try {
         // const resultProducts = await productManager.getProducts();
-        const resultProducts = await ProductModel.getProducts();
+        const resultProducts = await ProductModel.find();
         if (limit) {
             let tempArray = resultProducts.filter((dat, index) => index < limit);
 
@@ -42,12 +42,11 @@ router.get("/", async (req, res) => {
     }
 });
 
-// esto sirve, se pone asi http://localhost:8080/api/products/64cd0837e8f032c3cd11d553
+
 router.get("/:pid", async (req, res) => {
     const { pid } = req.params;
 
-    // let product = await productManager.getProductById(pid);
-    let product = await ProductModel.find(pid);
+    let product = await ProductModel.find({_id: pid});
 
     if (product) {
         res.json({ message: "listo", data: product });
@@ -58,7 +57,6 @@ router.get("/:pid", async (req, res) => {
     }
 });
 
-// esto sirve
 router.post("/", async (req, res) => {
     const { title, description, code, price, stock, category, image,
     } = req.body;
