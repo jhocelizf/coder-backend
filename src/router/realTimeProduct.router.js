@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { __filename, __dirname } from "../utils.js";
-/* import {
+import {
     obtenerListaDeProductos,
-} from "../services/ProductManager.js"; */
+} from "../dao/fileManager/product.manager.js"; 
 
 
 const realtimeRouter = Router();

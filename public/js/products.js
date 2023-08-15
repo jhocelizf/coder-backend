@@ -1,29 +1,27 @@
-import Products from "../../dao/fileManager/ProductManager.js";
+let cart = prompt("Ingrese el id de su carrito")
 
-const products = new Products();
+let buttons = document.querySelectorAll("button")
 
-async function addToCart(code) {
+buttons.forEach((button) => {
+    button.addEventListener('click', (addToCart))
+})
 
-    let product = await products.getByCode(code);
-    let id = product.id;
-    let cart = "64d1833895417b493b556bbb";
-    postCart(id, cart)
-        .then((data) => {
-            alert("producto agregado al carrito", data);
+function addToCart(e) {
+    const pid = e.target.id
+    fetch(`/carrito/${cart}/product/${pid}`, {
+        method: 'POST',
+    })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Producto agregado correctamente',
+                showConfirmButton: false,
+                timer: 1500
+            })
         })
-        .catch((err) => console.log(err, "no se agrego el producto "));
-}
-
-async function postCart(id, carrito) {
-    try {
-        const response = await fetch(`/${carrito}/product/${id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+        .catch(error => {
+            console.log('Error:', error);
         });
-        return response;
-    } catch (err) {
-        console.log(err);
-    }
 }
