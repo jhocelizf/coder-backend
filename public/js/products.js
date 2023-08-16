@@ -1,3 +1,4 @@
+// agrega los productos al carrito
 let buttons = document.querySelectorAll("button")
 
 buttons.forEach((button) => {
@@ -6,7 +7,8 @@ buttons.forEach((button) => {
 
 function addToCart(e) {
     const pid = e.target.id
-    fetch(`/cart/${cart}/product/${pid}`, {
+    const cid = e.target.id
+    fetch(`api/carts/${cid}/product/${pid}`, {
         method: 'POST',
     })
         .then(response => response.json())

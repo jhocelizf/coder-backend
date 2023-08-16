@@ -3,7 +3,7 @@ import { Router } from "express";
 
 const chatRouter = Router();
 
-chatRouter.get("/",(req,res)=>{
+chatRouter.get("/chat",(req,res)=>{
     res.render("chat",{title:"Chat", script: "chat.js"})
 })
 
