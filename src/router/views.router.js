@@ -14,9 +14,11 @@ productRouter.get("/", (req, res) => {
  */
 
 productRouter.get("/",async (req,res)=>{
+    const cart = await CartModel.find()
+    const cartId = cart ? cart[0]._id : null
     const {limit = 3, page = 1, sort, query} = req.query
     const {docs,hasPrevPage,hasNextPage,nextPage,prevPage} = await ProductModel.paginate(query ? {category: query} : {},{limit, page, lean: true, sort: sort ? {price:1} : {price:-1}})
-    res.render("home",{title: "products", 
+    res.render("home",{title: "products", cartId,
     products: docs,  
     hasPrevPage,
     hasNextPage,

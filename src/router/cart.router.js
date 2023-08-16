@@ -32,7 +32,7 @@ router.get("/:cid", async (req, res) => {
         }
 
         // Renderizar la plantilla y pasarle los datos del carrito
-        res.render("cart", { title: "Cart", cart});
+        res.render("cart", { title: "Cart", cart });
     } catch (error) {
         console.error(error);
         res.status(500).render("error", { message: "Ocurrió un error al procesar la solicitud" });
@@ -70,7 +70,7 @@ router.get("/:cid", async (req, res) => {
 // Aca use el req.body
 router.post("/:cid/product/:pid", async (req, res) => {
     const { cid, pid } = req.params;
-    const { quantity } = req.body; 
+    const { quantity } = req.body;
 
     let cart = await CartModel.findOne({ _id: cid });
     if (cart) {
@@ -98,6 +98,30 @@ router.post("/:cid/product/:pid", async (req, res) => {
     }
 })
 
+router.post("/:cid/products", async (req, res) => {
+    try {
+        const {cid}  = req.params;
+        const { productsToAdd }= req.body;
+
+        const cart = await CartModel.findById(cid);
+
+        for (const productToAdd of productsToAdd) {
+            const existingProductIndex = cart.products.findIndex(e => e.item.toString() === productToAdd.item);
+
+            if (existingProductIndex !== -1) {
+                cart.products[existingProductIndex].quantity += productToAdd.quantity;
+            } else {
+                cart.products.push({ item: productToAdd.item, quantity: productToAdd.quantity });
+            }
+        }
+
+        const updatedCart = await cart.save();
+
+        res.json(updatedCart);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 router.put("/:cid/products/:pid", async (req, res) => {
     const { cid, pid } = req.params
@@ -114,12 +138,12 @@ router.put("/:cid/products/:pid", async (req, res) => {
     }
 });
 
-router.delete("/:cid",async(req,res)=>{
-    const {cid} = req.params
+router.delete("/:cid", async (req, res) => {
+    const { cid } = req.params
     let cart = await CartModel.findById(cid)
     cart.products = []
-    let result = await CartModel.findByIdAndUpdate(cid,cart)
-    return res.json({message: "Carrito vacio", data: result})
+    let result = await CartModel.findByIdAndUpdate(cid, cart)
+    return res.json({ message: "Carrito vacio", data: result })
 })
 
 export default router;

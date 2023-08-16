@@ -1,15 +1,15 @@
 <div>
   <h1>Carrito</h1>
-
+{{!-- 
   <form>
     <button type="button" onclick="emptyCart('/api/carts/{{cid}}')">Vaciar carrito</button>
-  </form>
+  </form> --}}
 
   {{#each cart}}
 
-  <p><b>Title:</b> {{this.title}}</p>
-  <p><b>Description:</b> {{this.description}}</p>
-  <p><b>Price:</b> {{this.price}}</p>
+  <p><b>Title:</b> {{this.item.title}}</p>
+  <p><b>Description:</b> {{this.item.description}}</p>
+  <p><b>Price:</b> {{this.item.price}}</p>
   <p><b>Quantity:</b> {{this.quantity}}</p>
   <form>
     <td>

@@ -15,9 +15,8 @@
         <div class="card-body">
             <a href="#" class="card-link">{{this.status}}</a>
             <a href="#" class="card-link">{{this.category}}</a>
-            {{!-- <button class="btn btn-success" id="{{this._id}}">Agregar al Carrito</button> --}}
 
-            <form action="/api/carts/{{id}}/product/{{_id}}" method="post">
+            <form action="/api/carts/{{@root.cartId}}/product/{{_id}}" method="post">
                 <label for="quantity-{{_id}}">Cantidad:</label>
                 <input type="number" name="quantity" id="quantity-{{_id}}" value="1" min="1">
                 <button type="submit">Agregar al carrito</button>
