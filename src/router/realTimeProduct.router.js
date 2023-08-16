@@ -9,7 +9,6 @@ const realtimeRouter = Router();
 
 realtimeRouter.get("/", (req, res) => {
 const products = obtenerListaDeProductos();
-// console.log(products);
 res.render("realTimeProducts", { products });
 });
 

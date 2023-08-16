@@ -5,25 +5,6 @@ import ProductModel from "../dao/mongoManager/models/product.model.js";
 
 const router = Router();
 let products = [];
-// const productManager = new ProductManager("products.json");
-
-// router.get("/", async (res, req) => {
-//     try{
-//         const result = await ProductModel.find();
-//         res.json({
-//             data: result,
-//             message: result.length ? "Hay productos" : "No hay productos",
-//         });
-//     } catch (error) {}
-// });
-
-
-// sirve
-router.get('/', async (req, res) => {
-    const result = await ProductModel.find()
-    res.send(result)
-})
-
 
 router.get("/", async (req, res) => {
     const { limit } = req.query;
@@ -130,7 +111,6 @@ router.put("/:pid", async (req, res) => {
     }
 });
 
-// este sirve
 router.delete("/:pid", async (req, res) => {
     try {
         // Eliminar un producto por su ID

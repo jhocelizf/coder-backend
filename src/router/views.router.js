@@ -16,8 +16,8 @@ productRouter.get("/", (req, res) => {
 productRouter.get("/",async (req,res)=>{
     const {limit = 10, page = 1, sort, query} = req.query
     const {docs,hasPrevPage,hasNextPage,nextPage,prevPage} = await ProductModel.paginate(query ? {category: query} : {},{limit, page, lean: true, sort: sort ? {price:1} : {price:-1}})
-    res.render("home",{title: "Productos", 
-    productos: docs,  
+    res.render("home",{title: "products", 
+    products: docs,  
     hasPrevPage,
     hasNextPage,
     prevPage,
@@ -25,7 +25,7 @@ productRouter.get("/",async (req,res)=>{
     limit,
     sort,
     query,
-    script: "agregarProductos.js"
+    script: "products.js"
 })
 })
 

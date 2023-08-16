@@ -1,27 +1,23 @@
 import express from "express";
 import { Router } from "express";
 import ProductModel from "../dao/mongoManager/models/product.model.js";
-import cartModel from "../dao/mongoManager/models/cart.model.js";
-// import CartsManager from "../dao/fileManager/ProductManager.js";
-
-
-
+import CartModel from "../dao/mongoManager/models/cart.model.js";
+import Carts from "../dao/fileManager/cart.manager.js"
 const router = Router();
-// const cartsManager = new CartsManager("carts.json");
 
 /* router.use(express.json());
 router.use(express.urlencoded({ extended: true })); */
+const carts = new Carts();
 
-// funciona
 router.post("/", async (req, res) => {
     try {
-        await cartModel.insertOne();
+        await CartModel.create({});
         res.send({
             status: "Success",
             message: "el carrito se añadio correctamente",
         });
     } catch (err) {
-        res.status(err.statusCode).send(` ${err}`);
+        res.send(` ${err}`);
     }
 });
 
@@ -29,43 +25,30 @@ router.get("/:cid", async (req, res) => {
     let { cid } = req.params;
     try {
         // Obtener un carrito por su ID
-        let cart = await cartModel.findById(cid);
-        res.send({ cart });
+        let cart = await CartModel.findById(cid);
+        if (!cart) {
+            // Si el carrito no se encuentra, puedes enviar un mensaje de error
+            return res.status(404).render("error", { message: "Carrito no encontrado" });
+        }
+
+        // Renderizar la plantilla y pasarle los datos del carrito
+        res.render("cart", { title: "Cart", cart });
     } catch (error) {
-        res.status(400).send({ status: "Error", error: "Carrito no encontrado" });
+        console.error(error);
+        res.status(500).render("error", { message: "Ocurrió un error al procesar la solicitud" });
     }
 });
 
 /* router.post("/:cid/product/:pid", async (req, res) => {
-    const idCart = req.params.cid;
+    const { cid, pid } = req.params;
     const idProduct = req.params.pid;
     const quantity = req.body.quantity;
-    try {
-        const cart = await cartModel.findById(
-            idCart
-        );
-        let productExistsInCart = cart.products.findIndex(
-            (dato) => dato.product == pid
-        );
-        
-        productExistsInCart == -1
-        ? cart.products.push({ product : idProduct, quantity: 1, })
-        : (cart.products[productExistsInCart].quantity =
-            cart.products[productExistsInCart].quantity + 1);
-        const updatedCart = await cart.save();
-        res.json(updatedCart);
-        // res.json({ status: "200 ok", message: cart });
-    } catch (err) {
-        res.status(err.statusCode).send(` ${err}`);
-    }
-}); */
-
-router.post("/:cid/product/:pid", async (req, res) => {
-    const { cid, pid } = req.params;
-    let cart = await cartModel.findOne({ _id: cid });
+    let cart = await CartModel.findOne({ _id: cid });
 
     if (cart) {
-        const productoEnCarrito = cart.products.find(product => product.product.id === pid);
+        const productoEnCarrito = cart.products.find(e => e.product === pid);
+
+        // if (quantity)
 
         if (productoEnCarrito) {
             productoEnCarrito.quantity++;
@@ -82,17 +65,49 @@ router.post("/:cid/product/:pid", async (req, res) => {
     } else {
         return res.status(404).json({ message: "Carrito no encontrado" });
     }
+}) */
+
+// Aca use el req.body
+router.post("/:cid/product/:pid", async (req, res) => {
+    const { cid, pid } = req.params;
+    const { quantity } = req.body; 
+
+    let cart = await CartModel.findOne({ _id: cid });
+    if (cart) {
+        const productoEnCarrito = cart.products.find(e => e.product === pid);
+
+        if (productoEnCarrito) {
+            if (quantity) {
+                productoEnCarrito.quantity += quantity; // Incrementa la cantidad según lo proporcionado
+            } else {
+                productoEnCarrito.quantity++; // Incrementa en 1 si no se proporciona quantity
+            }
+        } else {
+            const product = await ProductModel.findById(pid);
+            const newProduct = {
+                product: product._id,
+                quantity: quantity || 1 // Usa quantity si se proporciona, de lo contrario, usa 1
+            };
+            cart.products.push(newProduct);
+        }
+
+        const result = await cart.save();
+        return res.json({ message: "Producto agregado", data: result });
+    } else {
+        return res.status(404).json({ message: "Carrito no encontrado" });
+    }
 })
+
 
 router.put("/:cid/products/:pid", async (req, res) => {
     const { cid, pid } = req.params
     const { quantity } = req.body
-    let cart = await cartModel.findOne({ _id: cid })
+    let cart = await CartModel.findOne({ _id: cid })
     let productos = cart.products
     let producto = productos.findIndex((producto) => producto.product.id === pid)
     if (producto !== -1) {
         productos[producto].product.quantity = quantity
-        let result = await cartModel.findByIdAndUpdate(cid, cart)
+        let result = await CartModel.findByIdAndUpdate(cid, cart)
         return res.json({ message: "Cantidad de ejemplares actualizada", data: result })
     } else {
         return res.status(404).json({ message: "Producto no encontrado" })
@@ -101,9 +116,9 @@ router.put("/:cid/products/:pid", async (req, res) => {
 
 router.delete("/:cid",async(req,res)=>{
     const {cid} = req.params
-    let cart = await cartModel.findById(cid)
+    let cart = await CartModel.findById(cid)
     cart.products = []
-    let result = await cartModel.findByIdAndUpdate(cid,cart)
+    let result = await CartModel.findByIdAndUpdate(cid,cart)
     return res.json({message: "Carrito vacio", data: result})
 })
 

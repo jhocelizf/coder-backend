@@ -1,9 +1,9 @@
 import { log } from "console";
-import utils from "../utils.js";
+import utils from "../../utils.js";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import { __dirname } from "../utils.js";
+import { __dirname } from "../../utils.js";
 
 export class ProductManager {
     static product;

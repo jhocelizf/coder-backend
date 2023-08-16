@@ -11,8 +11,7 @@ import { __filename, __dirname } from "./utils.js";
 import dotenv from "dotenv";
 import MessageModel from "./dao/mongoManager/models/message.model.js";
 import ProductModel from "./dao/mongoManager/models/product.model.js";
-// import ProductManager from "../dao/fileManager/ProductManager.js";
-// const productManager = new ProductManager("products.json")
+
 
 dotenv.config();
 const app = express();

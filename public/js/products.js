@@ -1,5 +1,3 @@
-let cart = prompt("Ingrese el id de su carrito")
-
 let buttons = document.querySelectorAll("button")
 
 buttons.forEach((button) => {
@@ -8,7 +6,7 @@ buttons.forEach((button) => {
 
 function addToCart(e) {
     const pid = e.target.id
-    fetch(`/carrito/${cart}/product/${pid}`, {
+    fetch(`/cart/${cart}/product/${pid}`, {
         method: 'POST',
     })
         .then(response => response.json())

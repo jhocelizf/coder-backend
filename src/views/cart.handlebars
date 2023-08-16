@@ -1,23 +1,28 @@
-<h1>Carrito</h1>
-<table style="width: 100%;">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Titulo</th>
-            <th>Code</th>
-            <th>Category</th>
-            <th>Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each productos}}
-        <tr>
-            <td><img src="{{this.product.thumbnail}}" alt="{{this.product.title}}" style="width: 150px; border-radius: 10px; margin-left: 20px;"></td>
-            <td>{{this.product.title}}</td>
-            <td>{{this.product.code}}</td>
-            <td>{{this.product.category}}</td>
-            <td>${{this.product.price}}</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+<div>
+    <h1>Carrito</h1>
+
+    <form>
+        <button type="button" onclick="emptyCart('/api/carts/{{cid}}')">Vaciar carrito</button>
+    </form>
+
+    {{#each cart}}
+
+    <p><b>Title:</b> {{this.name}}</p>
+    <p><b>Description:</b> {{this.description}}</p>
+    <p><b>Price:</b> {{this.price}}</p>
+    <p><b>Quantity:</b> {{this.quantity}}</p>
+    <form>
+        <label for="quantity">New Quantity:</label>
+        <input type="number" id="quantity-{{product._id}}" name="quantity" value="{{quantity}}">
+        <button type="button" onclick="updateQuantity('/api/carts/{{../cid}}/products/{{product._id}}')">Actualizar carrito</button>
+        <button type="button" onclick="removeProductFromCart('/api/carts/{{../cid}}/products/{{product._id}}')">Eliminar</button>
+    </form>
+    {{#if thumbnail.length}}
+    <p><b>Thumbnail:</b> {{thumbnail}}</p>
+    {{/if}}
+    <hr>
+    </hr>
+    {{/each}}
+
+
+</div>
