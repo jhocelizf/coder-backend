@@ -32,7 +32,7 @@ router.get("/:cid", async (req, res) => {
         }
 
         // Renderizar la plantilla y pasarle los datos del carrito
-        res.render("cart", { title: "Cart", cart });
+        res.render("cart", { title: "Cart", cart});
     } catch (error) {
         console.error(error);
         res.status(500).render("error", { message: "Ocurrió un error al procesar la solicitud" });

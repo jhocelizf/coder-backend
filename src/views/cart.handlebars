@@ -1,28 +1,33 @@
 <div>
-    <h1>Carrito</h1>
+  <h1>Carrito</h1>
 
-    <form>
-        <button type="button" onclick="emptyCart('/api/carts/{{cid}}')">Vaciar carrito</button>
-    </form>
+  <form>
+    <button type="button" onclick="emptyCart('/api/carts/{{cid}}')">Vaciar carrito</button>
+  </form>
 
-    {{#each cart}}
+  {{#each cart}}
 
-    <p><b>Title:</b> {{this.name}}</p>
-    <p><b>Description:</b> {{this.description}}</p>
-    <p><b>Price:</b> {{this.price}}</p>
-    <p><b>Quantity:</b> {{this.quantity}}</p>
-    <form>
-        <label for="quantity">New Quantity:</label>
-        <input type="number" id="quantity-{{product._id}}" name="quantity" value="{{quantity}}">
-        <button type="button" onclick="updateQuantity('/api/carts/{{../cid}}/products/{{product._id}}')">Actualizar carrito</button>
-        <button type="button" onclick="removeProductFromCart('/api/carts/{{../cid}}/products/{{product._id}}')">Eliminar</button>
-    </form>
-    {{#if thumbnail.length}}
-    <p><b>Thumbnail:</b> {{thumbnail}}</p>
-    {{/if}}
-    <hr>
-    </hr>
-    {{/each}}
+  <p><b>Title:</b> {{this.title}}</p>
+  <p><b>Description:</b> {{this.description}}</p>
+  <p><b>Price:</b> {{this.price}}</p>
+  <p><b>Quantity:</b> {{this.quantity}}</p>
+  <form>
+    <td>
+      <button class="decrement" data-id="{{ this._id }}">-</button>
+      {{ this.quantity }}
+      <button class="increment" data-id="{{ this._id }}">+</button>
+    </td>
+    <td>
+      <button class="remove" data-id="{{ this._id }}">Eliminar</button>
+    </td>
+
+  </form>
+  {{#if thumbnail.length}}
+  <p><b>Thumbnail:</b> {{thumbnail}}</p>
+  {{/if}}
+  <hr>
+  </hr>
+  {{/each}}
 
 
 </div>
