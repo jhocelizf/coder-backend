@@ -1,5 +1,5 @@
 // agrega los productos al carrito
-let buttons = document.querySelectorAll("button")
+/* let buttons = document.querySelectorAll("button")
 
 buttons.forEach((button) => {
     button.addEventListener('click', (addToCart))
@@ -24,4 +24,4 @@ function addToCart(e) {
         .catch(error => {
             console.log('Error:', error);
         });
-}
+} */
