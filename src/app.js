@@ -5,16 +5,22 @@ import cartRouter from "./router/cart.router.js";
 import viewsRouter from "./router/views.router.js";
 import realtimeRouter from "./router/realTimeProduct.router.js";
 import chatRouter from "./router/chat.router.js";
+import loginRouter from "./router/login.router.js";
+import signupRouter from "./router/signup.router.js";
+import sessionRouter from "./router/session.router.js";
 import { Server } from "socket.io";
 import { engine } from "express-handlebars";
 import { __filename, __dirname } from "./utils.js";
 import dotenv from "dotenv";
 import MessageModel from "./dao/mongoManager/models/message.model.js";
 import ProductModel from "./dao/mongoManager/models/product.model.js";
-
+import MongoStore from "connect-mongo";
+import session from "express-session";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
+app.use(cookieParser("C0d3rS3cr3t"));
 const PORT = process.env.PORT || 8080;
 const httpServer = app.listen(PORT, () => {
     console.log(`El servidor esta corriendo en el puerto ${PORT}`);
@@ -37,6 +43,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+app.use(
+    session({
+        store: MongoStore.create({
+            mongoUrl: MONGO_URI,
+            mongoOptions: {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            },
+            ttl: 30,
+        }),
+        secret: "codersecret",
+        resave: false,
+        saveUninitialized: false,
+    })
+);
+
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
@@ -47,6 +69,10 @@ app.use("/api/carts", cartRouter);
 app.use("/", viewsRouter);
 app.use("/realtime", realtimeRouter);
 app.use("/chat", chatRouter);
+app.use("/login", loginRouter);
+app.use("/signup", signupRouter);
+app.use("/api/session/", sessionRouter);
+
 
 httpServer.on("error", (err) => {
     console.log(err);
@@ -58,7 +84,8 @@ io.on("connection", async (socket) => {
     console.log("Nuevo cliente conectado");
     socket.on("new-user", (data) => {
         socket.user = data.user;
-        socket.id = data.id;})
+        socket.id = data.id;
+    })
 
     // Manejar eventos personalizados
     socket.on("mensaje", (data) => {
@@ -97,14 +124,14 @@ io.on("connection", async (socket) => {
         id: socket.id,
     });
     const mensajes = await MessageModel.find({}).lean()
-        socket.emit("enviar-mensajes", mensajes)
-        socket.on("Nuevos-mensajes", (data) => {
-            console.log(data + " nuevos mensajes")
-        })
+    socket.emit("enviar-mensajes", mensajes)
+    socket.on("Nuevos-mensajes", (data) => {
+        console.log(data + " nuevos mensajes")
+    })
 
-        socket.on("disconnect", () => {
-            console.log("Cliente desconectado");
-        });
+    socket.on("disconnect", () => {
+        console.log("Cliente desconectado");
     });
+});
 
 

@@ -114,9 +114,8 @@ router.post("/:cid/products", async (req, res) => {
                 cart.products.push({ item: productToAdd.item, quantity: productToAdd.quantity });
             }
         }
-
         const updatedCart = await cart.save();
-
+        
         res.json(updatedCart);
     } catch (error) {
         res.status(500).json({ error: error.message });

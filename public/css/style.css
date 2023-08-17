@@ -86,3 +86,52 @@ li p {
     cursor: pointer;
     margin: 10px;
 }
+
+
+/* ACA VOY A PONER MOMENTANEA MENTE EL CSS DE LOGIN */
+.login-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-form {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.label-login {
+    display: block;
+    font-weight: bold;
+}
+
+.input-login[type="text"],
+.input-login[type="number"],
+.input-login[type="email"],
+.input-login[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button-login {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-login:hover {
+    background-color: #ff5500;
+}
