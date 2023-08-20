@@ -25,16 +25,16 @@ router.post("/login", async (req, res) => {
             respuesta: "error",
         });
     else {
-        req.session.user = username;
-        req.session.admin = true;
-        res.status(200).json({
-            respuesta: "ok",
-        });
+req.session.user = username; 
+req.session.admin = true;
+res.status(200).json({
+    respuesta: "ok", }); 
+        // Verificar el rol basado en el correo electrónico del usuario
     }
 });
 
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, age, email, password } = req.body;
+    const { first_name, last_name, age, email, password, role } = req.body;
 
     const result = await UserModel.create({
         first_name,
@@ -42,6 +42,7 @@ router.post("/signup", async (req, res) => {
         age,
         email,
         password,
+        role
     });
     console.log(result);
     if (result === null) {
@@ -49,8 +50,20 @@ router.post("/signup", async (req, res) => {
             respuesta: "error",
         });
     } else {
-        req.session.user = email;
+    /*    req.session.user = email;
         req.session.admin = true;
+        res.status(200).json({
+            respuesta: "ok",
+        }); */
+        if (result.email === "admin@codercoder.com") {
+            result.role = "admin";
+        } else {
+            result.role = "usuario";
+        }
+
+        req.session.user = result.email;
+        req.session.admin = result.role === "admin";
+
         res.status(200).json({
             respuesta: "ok",
         });

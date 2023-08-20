@@ -1,10 +1,11 @@
-async function postSignup(first_name, last_name, age, username, password) {
+async function postSignup(first_name, last_name, age, username, password, role) {
     const data = {
         first_name,
         last_name,
         age,
         email: username,
         password,
+        role,
     };
 
     console.log("toda la data", data);
@@ -23,15 +24,27 @@ async function postSignup(first_name, last_name, age, username, password) {
 const signupForm = document.getElementById("signup-form");
 
 signupForm.addEventListener("submit", function (event) {
-    console.log("tracking");
     event.preventDefault();
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const first_name = document.getElementById("first_name").value;
     const last_name = document.getElementById("last_name").value;
     const age = document.getElementById("age").value;
+    const role = document.getElementById("role").value;
 
-    postSignup(first_name, last_name, age, username, password).then((datos) =>
-        console.log(datos)
-    );
+    postSignup(first_name, last_name, age, username, password, role).then((datos) => {
+        if (datos) {
+            Swal.fire({
+                title: 'Usuario creado con éxito',
+                icon: 'success',
+                text: '¡El usuario se ha creado exitosamente!',
+            });
+        } else {
+            Swal.fire({
+                title: 'Error al crear usuario',
+                icon: 'error',
+                text: 'Hubo un problema al crear el usuario. Inténtalo nuevamente.',
+            });
+        }
+    });
 });

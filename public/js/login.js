@@ -17,5 +17,22 @@ loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
-    postLogin(username, password).then((datos) => console.log(datos));
+    postLogin(username, password).then((datos) => {
+        // if (datos.respuesta == "ok") {
+        //     window.location.href = "/";
+        // } else alert("Usuario o contraseña incorrectos");
+        if (datos.respuesta == "ok") {
+            const welcomeMessage = `¡Bienvenido de nuevo, ${username}!`;
+            Swal.fire({
+                title: welcomeMessage,
+                icon: 'success',
+                text: 'Esperamos que tengas una excelente experiencia.',
+            });
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2000); 
+        } else {
+            alert("Usuario o contraseña incorrectos");
+        }
+    });
 });

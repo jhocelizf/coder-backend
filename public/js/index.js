@@ -48,19 +48,6 @@ socket.on("nuevoProductoAgregado", (newProduct) => {
 });
 
 // Actualizar la lista de productos
-/* function updateProductList(products) {
-    const productList = document.getElementById("productList");
-    productList.innerHTML = "";
-
-    products.forEach((product) => {
-        const li = document.createElement("li");
-        li.textContent = product.name;
-        productList.appendChild(li);
-    });
-}
- */
-
-// Actualizar la lista de productos
 function updateProductList(products) {
     const productList = document.getElementById("productList");
     productList.innerHTML = "";
@@ -94,5 +81,14 @@ deleteButton.forEach(button => {
         //fuerzo el refresh para que se actualice la lista. 
         location.reload()
     })
+
 })
+
+// const cerrarSesion = document.getElementById("logout-button")
+// console.log("Botón de cerrar sesión clickeado");
+//     cerrarSesion.addEventListener("click", function() {
+//     setTimeout(() => {
+//         window.location.href = "/login";
+//     }, 2000);
+// });
 
