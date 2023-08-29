@@ -1,5 +1,7 @@
 import { Router } from "express";
-import UserModel from "../dao/mongoManager/models/user.model.js";
+import User from "../dao/mongoManager/models/user.model.js";
+import { createHash, isValidPassword } from "../utils.js";
+import passport from "passport";
 
 const router = Router();
 
@@ -15,7 +17,7 @@ router.post("/login", async (req, res) => {
     console.log(req.body);
     const { username, password } = req.body;
 
-    const result = await UserModel.find({
+    const result = await User.find({
         email: username,
         password,
     });
@@ -25,10 +27,11 @@ router.post("/login", async (req, res) => {
             respuesta: "error",
         });
     else {
-req.session.user = username; 
-req.session.admin = true;
-res.status(200).json({
-    respuesta: "ok", }); 
+        req.session.user = username;
+        req.session.admin = true;
+        res.status(200).json({
+            respuesta: "ok",
+        });
         // Verificar el rol basado en el correo electrónico del usuario
     }
 });
@@ -36,7 +39,7 @@ res.status(200).json({
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, age, email, password, role } = req.body;
 
-    const result = await UserModel.create({
+    const result = await User.create({
         first_name,
         last_name,
         age,
@@ -50,12 +53,12 @@ router.post("/signup", async (req, res) => {
             respuesta: "error",
         });
     } else {
-    /*    req.session.user = email;
-        req.session.admin = true;
-        res.status(200).json({
-            respuesta: "ok",
-        }); */
-        if (result.email === "admin@codercoder.com") {
+        /*    req.session.user = email;
+            req.session.admin = true;
+            res.status(200).json({
+                respuesta: "ok",
+            }); */
+        if (result.email === "coder-admin@coder.com") {
             result.role = "admin";
         } else {
             result.role = "usuario";
@@ -70,8 +73,62 @@ router.post("/signup", async (req, res) => {
     }
 });
 
-router.get("/privado", auth, (req, res) => {
-    res.render("topsecret", {});
-});
+//Registro con passport
+router.post("/register", passport.authenticate("register", {
+    failureRedirect: "/failRegister"
+}), async (req, res) => {
+    return res.json({ status: "success", message: "Usuario registrado" })
+})
+
+//Ruta por si falla el registro
+router.get("/failRegister", (req, res) => {
+    res.send({ error: "Error register" })
+})
+
+//Login con passport   
+router.post("/login",passport.authenticate("login",{
+    failureRedirect: "/failLogin"}),async(req,res)=>{
+        if(!req.user){
+            return res.status(401).json({status: "Error", message: "Error de autenticación"})
+        }else{
+            req.session.first_name = req.user.first_name
+            req.session.last_name = req.user.last_name
+            req.session.user = req.user.user
+            req.session.email = req.user.email
+            req.session.password = req.user.password
+            req.session.age = req.user.age
+            req.session.role = "user"
+            return res.json({
+                status: "OK",
+                message: "Logueado con exito"
+            })
+        }
+    }) 
+
+//Ruta si falla el login
+router.get("/failLogin", (req, res) => {
+    res.send({ error: "Error login" })
+})
+
+
+// router.get("/privado", auth, (req, res) => {
+//     res.render("topsecret", {});
+// });
+
+//Registro con github
+router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => { })
+
+router.get("/githubcallback", passport.authenticate("github", { failureRedirect: "/login" }), async (req, res) => {
+    req.session.first_name = req.user.first_name
+    req.session.last_name = req.user.last_name
+    req.session.user = req.user.user
+    req.session.email = req.user.email
+    req.session.password = req.user.password
+    req.session.role = "user"
+    console.log(req.user)
+    req.session.role = "user"
+    res.redirect("/")
+})
+
 
 export default router;

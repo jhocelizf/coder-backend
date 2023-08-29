@@ -1,5 +1,3 @@
-# Motores de plantillas + Websocket
-
 ## Start
 
 ```shell
@@ -8,8 +6,5 @@ npm install
 
 ## Endpoints
 
-- URL: http://localhost:8080/
+- URL: http://localhost:8080/  es el inicio de la página. Se debe iniciar sesion, con un usuario válido, para poder acceder a la vista de productos
 
-- GET /: Obtiene la lista estática de productos agregados hasta el momento.
-
-- GET /realtimeproducts: Obtiene la lista dinámica de productos con la implementación de Websocket. 

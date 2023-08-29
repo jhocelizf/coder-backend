@@ -8,6 +8,7 @@ import chatRouter from "./router/chat.router.js";
 import loginRouter from "./router/login.router.js";
 import signupRouter from "./router/signup.router.js";
 import sessionRouter from "./router/session.router.js";
+import forgotRouter from "./router/forgot.router.js";
 import { Server } from "socket.io";
 import { engine } from "express-handlebars";
 import { __filename, __dirname } from "./utils.js";
@@ -15,8 +16,10 @@ import dotenv from "dotenv";
 import MessageModel from "./dao/mongoManager/models/message.model.js";
 import ProductModel from "./dao/mongoManager/models/product.model.js";
 import MongoStore from "connect-mongo";
+import passport from "passport"
 import session from "express-session";
 import cookieParser from "cookie-parser";
+import intializePassport from "./config/passport.config.js"
 
 dotenv.config();
 const app = express();
@@ -39,10 +42,6 @@ mongoose.connect(MONGO_URI, {
     }
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-
 app.use(
     session({
         store: MongoStore.create({
@@ -59,6 +58,16 @@ app.use(
     })
 );
 
+
+//Passport
+intializePassport()
+app.use(passport.initialize())
+app.use(passport.session()) 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
@@ -71,6 +80,7 @@ app.use("/realtime", realtimeRouter);
 app.use("/chat", chatRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
+app.use("/forgot", forgotRouter);
 app.use("/api/session/", sessionRouter);
 
 

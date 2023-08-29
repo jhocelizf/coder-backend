@@ -27,7 +27,12 @@ productRouter.get("/",async (req,res)=>{
     limit,
     sort,
     query,
-    script: "products.js"
+    script: "products.js",
+    nombre: req.session.first_name,
+    apellido: req.session.last_name,
+    user: req.session.user,
+    email: req.session.email,
+    role: req.session.role
 })
 })
 

@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, max: 100, unique: true },
     password: { type: String, required: true, max: 100 },
     age: { type: Number, required: true, max: 100 },
-    role: { type: String, required: true},
+    user: { type: String, require: true },
+    // role: { type: String, required: true},
 });
 
 const User = mongoose.model(userCollection, userSchema);
