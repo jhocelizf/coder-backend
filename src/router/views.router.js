@@ -28,12 +28,32 @@ productRouter.get("/",async (req,res)=>{
     sort,
     query,
     script: "products.js",
-    nombre: req.session.first_name,
-    apellido: req.session.last_name,
-    user: req.session.user,
-    email: req.session.email,
-    role: req.session.role
+    nombre: req.user.user.first_name,
+    apellido: req.user.user.last_name,
+    email: req.user.user.email,
+    rol: req.user.user.role
 })
 })
+
+productRouter.get("/carts/:cid",async(req,res)=>{
+    const { cid } = req.params;
+    try {
+        let carrito = await CartsModel.findOne({_id: cid }).lean()
+        if (carrito) {
+            let productos = carrito.products;
+            if(productos.length === 0){
+                res.send("El carrito está vacio")
+            }else{
+                res.render("carrito", { title: "Carrito", productos, script: "carrito.js", style: "carrito.css"});
+            }
+        } else {
+            res.send("Carrito no encontrado");
+        }
+    } catch (err) { 
+        console.log(err); 
+        res.send("Error al cargar el carrito");
+    }
+})
+
 
 export default productRouter;

@@ -1,4 +1,4 @@
-async function postSignup(first_name, last_name, age, username, password, role) {
+async function postSignup(first_name, last_name, username, password) {
     const data = {
         first_name,
         last_name,
@@ -30,9 +30,9 @@ signupForm.addEventListener("submit", function (event) {
     const first_name = document.getElementById("first_name").value;
     const last_name = document.getElementById("last_name").value;
     const age = document.getElementById("age").value;
-    const role = document.getElementById("role").value;
+    // const role = document.getElementById("role").value;
 
-    postSignup(first_name, last_name, age, username, password, role).then((datos) => {
+    postSignup(first_name, last_name, age, username, password).then((datos) => {
         if (datos) {
             Swal.fire({
                 title: 'Usuario creado con éxito',

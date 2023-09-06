@@ -1,7 +1,8 @@
 import { Router } from "express";
-import User from "../dao/mongoManager/models/user.model.js";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from "passport";
+import { generateToken, passportCall, authorization } from "../utils.js";
+import UserModel from "../dao/mongoManager/models/user.model.js";
 
 const router = Router();
 
@@ -13,33 +14,60 @@ function auth(req, res, next) {
     return res.status(401).json("error de autenticacion");
 }
 
-router.post("/login", async (req, res) => {
-    console.log(req.body);
-    const { username, password } = req.body;
+// router.post("/login", async (req, res) => {
+//     console.log(req.body);
+//     const { username, password } = req.body;
 
-    const result = await User.find({
-        email: username,
-        password,
-    });
-    console.log(result);
-    if (result.length === 0)
-        return res.status(401).json({
-            respuesta: "error",
-        });
-    else {
-        req.session.user = username;
-        req.session.admin = true;
-        res.status(200).json({
-            respuesta: "ok",
-        });
-        // Verificar el rol basado en el correo electrónico del usuario
+//     const result = await User.find({
+//         email: username,
+//         password,
+//     });
+//     console.log(result);
+//     if (result.length === 0)
+//         return res.status(401).json({
+//             respuesta: "error",
+//         });
+//     else {
+//         req.session.user = username;
+//         req.session.admin = true;
+//         res.status(200).json({
+//             respuesta: "ok",
+//         });
+//         // Verificar el rol basado en el correo electrónico del usuario
+//     }
+// });
+
+// return res.status(401).json({ status: "Error", message: "Error de autenticación" })
+
+//Login con jwt   
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body
+    const user = await UserModel.findOne({ email: email })
+    if (!user) {
+        return res.json({ status: "error", message: "User not found" })
+    } else {
+        if (!isValidPassword(password, user.password)) {
+            return res.json({ status: "error", message: "Invalid password" })
+        } else {
+            const myToken = generateToken(user)
+            res.cookie("coderCookieToken", myToken, {
+                maxAge: 60 * 60 * 1000,
+                httpOnly: true
+            })
+            return res.json({ status: "success" })
+        }
     }
-});
+})
+
+
+router.get("/current", passportCall("jwt"), authorization("user"), (req, res) => {
+    res.send(req.user)
+})
 
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, age, email, password, role } = req.body;
 
-    const result = await User.create({
+    const result = await UserModel.create({
         first_name,
         last_name,
         age,
@@ -53,11 +81,6 @@ router.post("/signup", async (req, res) => {
             respuesta: "error",
         });
     } else {
-        /*    req.session.user = email;
-            req.session.admin = true;
-            res.status(200).json({
-                respuesta: "ok",
-            }); */
         if (result.email === "coder-admin@coder.com") {
             result.role = "admin";
         } else {
@@ -86,24 +109,25 @@ router.get("/failRegister", (req, res) => {
 })
 
 //Login con passport   
-router.post("/login",passport.authenticate("login",{
-    failureRedirect: "/failLogin"}),async(req,res)=>{
-        if(!req.user){
-            return res.status(401).json({status: "Error", message: "Error de autenticación"})
-        }else{
-            req.session.first_name = req.user.first_name
-            req.session.last_name = req.user.last_name
-            req.session.user = req.user.user
-            req.session.email = req.user.email
-            req.session.password = req.user.password
-            req.session.age = req.user.age
-            req.session.role = "user"
-            return res.json({
-                status: "OK",
-                message: "Logueado con exito"
-            })
-        }
-    }) 
+// router.post("/login", passport.authenticate("login", {
+//     failureRedirect: "/failLogin"
+// }), async (req, res) => {
+//     if (!req.user) {
+//         return res.status(401).json({ status: "Error", message: "Error de autenticación" })
+//     } else {
+//         req.session.first_name = req.user.first_name
+//         req.session.last_name = req.user.last_name
+//         req.session.user = req.user.user
+//         req.session.email = req.user.email
+//         req.session.password = req.user.password
+//         req.session.age = req.user.age
+//         req.session.role = "user"
+//         return res.json({
+//             status: "OK",
+//             message: "Logueado con exito"
+//         })
+//     }
+// })
 
 //Ruta si falla el login
 router.get("/failLogin", (req, res) => {

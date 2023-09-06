@@ -2,13 +2,16 @@ import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import crypto from "crypto";
-import User from "../dao/mongoManager/models/user.model.js";
-import { createHash, isValidPassword } from "../utils.js";
+import UserModel from "../dao/mongoManager/models/user.model.js";
+import { createHash } from "../utils.js";
 import dotenv from "dotenv";
+import CartModel from "../dao/mongoManager/models/cart.model.js";
+import jwt, {ExtractJwt} from "passport-jwt"
 
 dotenv.config();
 
 const LocalStrategy = local.Strategy
+const JwtStrategy = jwt.Strategy
 const GithubClientId = process.env.GITHUB_CLIENT_ID
 const GithubClientSecret = process.env.GITHUB_CLIENT_SECRET
 const GithubURL = process.env.GITHUB_URL_CALLBACK
@@ -18,9 +21,9 @@ const intializePassport = async () => {
         passReqToCallback: true,
         usernameField: "email"
     }, async (req, mail, pass, done) => {
-        const { first_name, last_name, email, age, user, password } = req.body
+        const { first_name, last_name, email, age, password } = req.body
         try {
-            const userAccount = await User.findOne({ email: email })
+            const userAccount = await UserModel.findOne({ email: email })
             if (userAccount) {
                 return done(null, false, { message: "Tu usuario ya existe" })
             } else {
@@ -29,22 +32,24 @@ const intializePassport = async () => {
                     last_name,
                     email,
                     age,
-                    user,
+                    cart: cart.id,
+                    role: "user",
                     password: createHash(password)
                 }
-                const result = await User.create(newUser)
+                const result = await UserModel.create(newUser)
+                console.log(result)
                 return done(null, result)
             }
         } catch (err) {
             return done(err)
         }
     }))
-
+/* 
     passport.use("login", new LocalStrategy({
         usernameField: "email"
     }, async (email, password, done) => {
         try {
-            const user = await User.findOne({ email: email })
+            const user = await UserModel.findOne({ email: email })
             if (!user) {
                 return done(null, false, { message: "Tu usuario no existe" })
             } else {
@@ -57,6 +62,17 @@ const intializePassport = async () => {
         } catch (err) {
             return done(err)
         }
+    })) */
+
+    passport.use("jwt", new JwtStrategy({
+        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+        secretOrKey: "CoderKeySecreta"
+    },async(jwt_payload,done)=>{
+        try{
+            return done(null,jwt_payload)
+        }catch(err){
+            return done(err)
+        }
     }))
 
     passport.use("github", new GithubStrategy({
@@ -66,7 +82,7 @@ const intializePassport = async () => {
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             console.log(profile)
-            const user = await User.findOne({ email: profile.login + "@gmail.com" })
+            const user = await UserModel.findOne({ email: profile.login + "@gmail.com" })
             if (!user) {
                 const newUser = {
                     first_name: profile.displayName,
@@ -76,7 +92,7 @@ const intializePassport = async () => {
                     user: profile.username,
                     password: crypto.randomUUID()
                 }
-                const result = await User.create(newUser)
+                const result = await UserModel.create(newUser)
                 done(null, result)
             } else {
                 done(null, user)
@@ -91,9 +107,16 @@ const intializePassport = async () => {
     })
 
     passport.deserializeUser(async (id, done) => {
-        let user = await User.findById(id)
+        let user = await UserModel.findById(id)
         done(null, user)
     })
 }
 
+const cookieExtractor = (req)=>{
+    let token = null
+    if(req && req.cookies){
+        token = req.cookies["coderCookieToken"]
+    }
+    return token
+} 
 export default intializePassport;

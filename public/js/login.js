@@ -18,9 +18,6 @@ loginForm.addEventListener("submit", function (event) {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     postLogin(username, password).then((datos) => {
-        // if (datos.respuesta == "ok") {
-        //     window.location.href = "/";
-        // } else alert("Usuario o contraseña incorrectos");
         if (datos.respuesta == "ok") {
             const welcomeMessage = `¡Bienvenido de nuevo, ${username}!`;
             Swal.fire({

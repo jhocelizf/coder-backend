@@ -11,7 +11,7 @@ import sessionRouter from "./router/session.router.js";
 import forgotRouter from "./router/forgot.router.js";
 import { Server } from "socket.io";
 import { engine } from "express-handlebars";
-import { __filename, __dirname } from "./utils.js";
+import { __filename, __dirname, authToken } from "./utils.js";
 import dotenv from "dotenv";
 import MessageModel from "./dao/mongoManager/models/message.model.js";
 import ProductModel from "./dao/mongoManager/models/product.model.js";
@@ -23,7 +23,7 @@ import intializePassport from "./config/passport.config.js"
 
 dotenv.config();
 const app = express();
-app.use(cookieParser("C0d3rS3cr3t"));
+app.use(cookieParser("C0D3RS3CR3T"));
 const PORT = process.env.PORT || 8080;
 const httpServer = app.listen(PORT, () => {
     console.log(`El servidor esta corriendo en el puerto ${PORT}`);
@@ -58,11 +58,18 @@ app.use(
     })
 );
 
+function auth(req, res, next) {
+    if (req.user.role) {
+        return next()
+    } else {
+        res.send("Error")
+    }
+}
 
 //Passport
 intializePassport()
 app.use(passport.initialize())
-app.use(passport.session()) 
+app.use(passport.session())
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -75,9 +82,9 @@ app.set("views", "./src/views");
 
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
-app.use("/", viewsRouter);
+app.use("/", auth, viewsRouter);
 app.use("/realtime", realtimeRouter);
-app.use("/chat", chatRouter);
+app.use("/chat", auth, chatRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.use("/forgot", forgotRouter);
