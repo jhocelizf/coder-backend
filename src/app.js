@@ -22,6 +22,7 @@ import cookieParser from "cookie-parser";
 import intializePassport from "./config/passport.config.js"
 
 dotenv.config();
+// Inicializar express
 const app = express();
 app.use(cookieParser("C0D3RS3CR3T"));
 const PORT = process.env.PORT || 8080;
@@ -58,13 +59,13 @@ app.use(
     })
 );
 
-function auth(req, res, next) {
-    if (req.user.role) {
-        return next()
-    } else {
-        res.send("Error")
-    }
-}
+// function auth(req, res, next) {
+//     if (req.isAuthenticated()) {
+//         return next()
+//     } else {
+//         return res.status(401).json("error de autenticacion");
+//     }
+// }
 
 //Passport
 intializePassport()
@@ -82,9 +83,9 @@ app.set("views", "./src/views");
 
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
-app.use("/", auth, viewsRouter);
+app.use("/", authToken, viewsRouter);
 app.use("/realtime", realtimeRouter);
-app.use("/chat", auth, chatRouter);
+app.use("/chat", authToken, chatRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.use("/forgot", forgotRouter);

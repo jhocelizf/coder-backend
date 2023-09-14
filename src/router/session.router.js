@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createHash, isValidPassword } from "../utils.js";
+import { isValidPassword } from "../utils.js";
 import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
 import UserModel from "../dao/mongoManager/models/user.model.js";
@@ -39,6 +39,19 @@ function auth(req, res, next) {
 
 // return res.status(401).json({ status: "Error", message: "Error de autenticación" })
 
+
+//Registro con passport
+router.post("/register",passport.authenticate("register",{
+    failureRedirect: "/failRegister"}),async(req,res)=>{
+        return res.json({status: "success", message: "Usuario registrado"})
+})
+
+//Ruta por si falla el registro
+router.get("/failRegister", (req, res) => {
+    res.send({ error: "Error register" })
+})
+
+
 //Login con jwt   
 router.post("/login", async (req, res) => {
     const { email, password } = req.body
@@ -59,12 +72,45 @@ router.post("/login", async (req, res) => {
     }
 })
 
+//ruta para el login usando passport y faillogin
+router.post(
+    "/login",
+    passport.authenticate("login", {
+        failureRedirect: "/failLogin",
+    }),
+    async (req, res) => {
+        if (!req.user) {
+            return res.status(401).json("error de autenticacion");
+        }
 
-router.get("/current", passportCall("jwt"), authorization("user"), (req, res) => {
-    res.send(req.user)
+        req.session.user = {
+            first_name: req.user.first_name,
+            last_name: req.user.last_name,
+            email: req.user.email,
+            age: req.user.age,
+        };
+        res.status(200).json({ respuesta: "Autenticado exitosamente" });
+    }
+);
+
+
+router.get("/current", passportCall("jwt"), async (req, res) => {
+    // res.send(req.user)
+    if (req.isAuthenticated()) {
+        const user = req.user;
+        return res.render("current", {
+            title: "User",
+            user: user
+        });
+    } else {
+        return res.render("error", {
+            title: "Error",
+            message: "No estás autenticado"
+        });
+    }
 })
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", passport.authenticate, async (req, res) => {
     const { first_name, last_name, age, email, password, role } = req.body;
 
     const result = await UserModel.create({
@@ -95,18 +141,6 @@ router.post("/signup", async (req, res) => {
         });
     }
 });
-
-//Registro con passport
-router.post("/register", passport.authenticate("register", {
-    failureRedirect: "/failRegister"
-}), async (req, res) => {
-    return res.json({ status: "success", message: "Usuario registrado" })
-})
-
-//Ruta por si falla el registro
-router.get("/failRegister", (req, res) => {
-    res.send({ error: "Error register" })
-})
 
 //Login con passport   
 // router.post("/login", passport.authenticate("login", {

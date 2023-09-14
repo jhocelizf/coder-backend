@@ -1,4 +1,4 @@
-async function postSignup(first_name, last_name, username, password) {
+async function postSignup(first_name, last_name, age, username, password, role) {
     const data = {
         first_name,
         last_name,
@@ -31,6 +31,7 @@ signupForm.addEventListener("submit", function (event) {
     const last_name = document.getElementById("last_name").value;
     const age = document.getElementById("age").value;
     // const role = document.getElementById("role").value;
+    register(first_name,last_name,email,age,password)
 
     postSignup(first_name, last_name, age, username, password).then((datos) => {
         if (datos) {
