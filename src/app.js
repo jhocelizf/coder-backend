@@ -59,14 +59,6 @@ app.use(
     })
 );
 
-// function auth(req, res, next) {
-//     if (req.isAuthenticated()) {
-//         return next()
-//     } else {
-//         return res.status(401).json("error de autenticacion");
-//     }
-// }
-
 //Passport
 intializePassport()
 app.use(passport.initialize())
@@ -80,13 +72,14 @@ app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 
-
+// Rutas
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
-app.use("/", authToken, viewsRouter);
+app.use("/home", authToken, viewsRouter);
 app.use("/realtime", realtimeRouter);
 app.use("/chat", authToken, chatRouter);
-app.use("/login", loginRouter);
+// app.use("/login", loginRouter);
+app.use("/", loginRouter);
 app.use("/signup", signupRouter);
 app.use("/forgot", forgotRouter);
 app.use("/api/session/", sessionRouter);

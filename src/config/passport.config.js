@@ -21,7 +21,8 @@ const intializePassport = async () => {
         passReqToCallback: true,
         usernameField: "email"
     }, async (req, mail, pass, done) => {
-        const { first_name, last_name, email, age, password } = req.body
+        const { first_name, last_name, email, age, role, password } = req.body
+        console.log(req.body);
         try {
             const userAccount = await UserModel.findOne({ email: email })
             if (userAccount) {
@@ -32,7 +33,7 @@ const intializePassport = async () => {
                     last_name,
                     email,
                     age,
-                    cart: cart.id,
+                    // cart: cart.id,
                     role: "user",
                     password: createHash(password)
                 }

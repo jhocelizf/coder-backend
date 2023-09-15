@@ -5,12 +5,13 @@ import { dirname } from "path";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import passport from "passport";
+import { log } from "console";
 
 export const createHash = password => bcrypt.hashSync(password,bcrypt.genSaltSync(10))
 
-export const isValidPassword = (savedPassword,password) =>{
-    console.log("Saved password: " + savedPassword, "Password: " + password)
-    return bcrypt.compareSync(savedPassword,password)
+export const isValidPassword = (password, savedPassword) =>{
+    const valid=bcrypt.compareSync(password, savedPassword)
+    return valid;
 } 
 
 export const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +26,7 @@ export const generateToken = (user)=>{
 
 export const authToken = (req,res,next)=>{
     let auth = req.cookies.coderCookieToken
+    console.log(auth);
     if(!auth) return res.json({status: "error", message: "Invalid auth"})
 
     const token = auth

@@ -30,10 +30,10 @@ signupForm.addEventListener("submit", function (event) {
     const first_name = document.getElementById("first_name").value;
     const last_name = document.getElementById("last_name").value;
     const age = document.getElementById("age").value;
-    // const role = document.getElementById("role").value;
-    register(first_name,last_name,email,age,password)
+    const role = document.getElementById("role").value;
+    // postSignup(first_name,last_name,email,age,role, password)
 
-    postSignup(first_name, last_name, age, username, password).then((datos) => {
+    postSignup(first_name, last_name, age, username, password, role).then((datos) => {
         if (datos) {
             Swal.fire({
                 title: 'Usuario creado con éxito',
