@@ -2,29 +2,14 @@ import { Router } from "express";
 import { isValidPassword } from "../utils.js";
 import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
-import UserModel from "../dao/mongoManager/models/user.model.js";
+import UserModel from "../dao/mongo/models/user.model.js";
 
 const router = Router();
-
-// function auth(req, res, next) {
-//     console.log(req.session);
-//     if (req.session?.user && req.session?.admin) {
-//         return next();
-//     }
-//     return res.status(401).json("error de autenticacion");
-// }
-
-//Registro con passport
-/* router.post("/register",passport.authenticate("register",{
-    failureRedirect: "/failRegister"}),async(req,res)=>{
-        return res.json({status: "success", message: "Usuario registrado"})
-}) */
 
 //Ruta por si falla el registro
 router.get("/failRegister", (req, res) => {
     res.send({ error: "Error register" })
 })
-
 
 //Login con jwt   
 router.post("/login", async (req, res) => {
@@ -91,47 +76,11 @@ router.post("/signup", passport.authenticate("register", {
         });
     }
 });
-/* router.post("/signup", passport.authenticate, async (req, res) => {
-    const { first_name, last_name, age, email, password, role } = req.body;
-
-    const result = await UserModel.create({
-        first_name,
-        last_name,
-        age,
-        email,
-        password,
-        role
-    });
-    console.log(result);
-    if (result === null) {
-        return res.status(401).json({
-            respuesta: "error",
-        });
-    } else {
-        if (result.email === "coder-admin@coder.com") {
-            result.role = "admin";
-        } else {
-            result.role = "usuario";
-        }
-
-        req.session.user = result.email;
-        req.session.admin = result.role === "admin";
-
-        res.status(200).json({
-            respuesta: "ok",
-        });
-    }
-}); */
 
 //Ruta si falla el login
 router.get("/failLogin", (req, res) => {
     res.send({ error: "Error login" })
 })
-
-
-// router.get("/privado", auth, (req, res) => {
-//     res.render("topsecret", {});
-// });
 
 //Registro con github
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => { })

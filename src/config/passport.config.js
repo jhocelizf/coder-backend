@@ -2,10 +2,10 @@ import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import crypto from "crypto";
-import UserModel from "../dao/mongoManager/models/user.model.js";
+import UserModel from "../dao/mongo/models/user.model.js";
 import { createHash } from "../utils.js";
 import dotenv from "dotenv";
-import CartModel from "../dao/mongoManager/models/cart.model.js";
+// import CartModel from "../dao/mongoManager/models/cart.model.js";
 import jwt, {ExtractJwt} from "passport-jwt"
 
 dotenv.config();
@@ -45,25 +45,6 @@ const intializePassport = async () => {
             return done(err)
         }
     }))
-/* 
-    passport.use("login", new LocalStrategy({
-        usernameField: "email"
-    }, async (email, password, done) => {
-        try {
-            const user = await UserModel.findOne({ email: email })
-            if (!user) {
-                return done(null, false, { message: "Tu usuario no existe" })
-            } else {
-                if (!isValidPassword(password, user.password)) {
-                    return done(null, false, { message: "Contraseña incorrecta" })
-                } else {
-                    return done(null, user)
-                }
-            }
-        } catch (err) {
-            return done(err)
-        }
-    })) */
 
     passport.use("jwt", new JwtStrategy({
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
