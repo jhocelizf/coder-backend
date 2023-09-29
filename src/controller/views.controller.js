@@ -1,28 +1,48 @@
-import { CARTS_DAO } from "../dao/index.js"
-import ProductsModel from "../dao/mongo/models/product.model.js"
+import { cart_dao } from "../dao/index.js"
+import ProductModel  from "../dao/mongo/models/product.model.js"
+import { ProductsRepository } from "../dao/repository/product.repository.js"
+import { product_dao } from "../dao/index.js"
+
+const productsService = new ProductsRepository(product_dao)
 
 async function showProducts(req, res) {
     try {
-        const { limit = 10, page = 1, sort, query } = req.query
-        const { docs, hasPrevPage, hasNextPage, nextPage, prevPage } = await ProductsModel.paginate(query ? { category: query } : {}, { limit, page, lean: true, sort: sort ? { price: 1 } : { price: -1 } })
-        res.render("home", {
-            title: "Productos",
-            productos: docs,
-            hasPrevPage,
-            hasNextPage,
-            prevPage,
-            nextPage,
-            limit,
-            sort,
-            query,
-            script: "home.js",
-            style: "home.css",
-            nombre: req.user.user.first_name,
-            apellido: req.user.user.last_name,
-            email: req.user.user.email,
-            rol: req.user.user.role,
-            idCart: req.user.user.cart
-        })
+        if (process.env.PERSISTENCE === "MONGO") {
+            const { limit = 10, page = 1, sort, query } = req.query
+            const { docs, hasPrevPage, hasNextPage, nextPage, prevPage } = await ProductModel.paginate(query ? { category: query } : {}, { limit, page, lean: true, sort: sort ? { price: 1 } : { price: -1 } })
+            res.render("home", {
+                title: "Productos",
+                products: docs,
+                hasPrevPage,
+                hasNextPage,
+                prevPage,
+                nextPage,
+                limit,
+                sort,
+                query,
+                script: "index.js",
+                style: "style.css",
+                nombre: req.user.user.first_name,
+                apellido: req.user.user.last_name,
+                email: req.user.user.email,
+                rol: req.user.user.role,
+                idCart: req.user.user.cart,
+                PORT: process.env.PORT
+            })
+        } else {
+            res.render("home", {
+                title: "Productos",
+                script: "index.js",
+                style: "style.css",
+                fullname: req.user.user.fullname,
+                email: req.user.user.email,
+                rol: req.user.user.role,
+                idCart: req.user.user.cart,
+                productos: await productsService.getProducts(req, res),
+                PORT: process.env.PORT,
+                MONGO: process.env.PERSISTENCE === "MONGO"
+            })
+        }
     } catch (err) {
         console.log(err)
     }
@@ -40,13 +60,13 @@ async function showCart(req, res) {
     try {
         const { cid } = req.params;
         try {
-            let carrito = await CARTS_DAO.getCartById(cid)
+            let carrito = await cart_dao.getCartById(cid)
             if (carrito) {
                 let productos = carrito.products.map(p => p.product);
                 if (productos.length === 0) {
                     res.send("El carrito está vacio")
                 } else {
-                    res.render("carrito", { title: "Carrito", productos, script: "carrito.js", style: "carrito.css" });
+                    res.render("carrito", { title: "Carrito", productos, script: "carts.js", style: "style.css", MONGO: process.env.PERSISTENCE === "MONGO", purchaser: req.user.user.email, idC: req.user.user.cart });
                 }
             } else {
                 res.send("Carrito no encontrado");
@@ -60,4 +80,4 @@ async function showCart(req, res) {
     }
 }
 
-export { showProducts, showRealTimeProducts, showCart }
+export { showProducts, showRealTimeProducts, showCart } 

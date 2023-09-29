@@ -1,8 +1,9 @@
-import { PRODUCTS_DAO } from "../dao/index.js";
+import { product_dao } from "../dao/index.js";
+import passport from "passport";
 
 async function getProductos(req, res) {
     try {
-        const result = await PRODUCTS_DAO.getProducts(req, res)
+        const result = await product_dao.getProducts(req, res)
         res.send(result)
     } catch (err) {
         console.log(err)

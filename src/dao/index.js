@@ -1,10 +1,23 @@
-//Clases locales
-import productsLocal from "./memory/products.dao.js"
-import cartsLocal from "./memory/cart.dao.js"
+//Config dotenv
+import { configuration } from "../config/config.js"
+configuration()
 
-//Clases con mongo
-import productMongo from "./mongo/product.dao.js"
-import cartMongo from "./mongo/cart.dao.js"
+//Memory
+import {ProductsMemoryDao} from "./memory/products.dao.js"
+import {CarritoMemoryDao} from "./memory/cart.dao.js "
+import { UsersMemoryDao } from "./memory/users.dao.js"
+import { ChatMemoryDao } from "./memory/chat.dao.js"
+import { TicketMemoryDao } from "./memory/ticket.dao.js"
 
-export const PRODUCTS_DAO = process.env.PERSISTENCE === "MONGO" ?    new productsLocal() : new productMongo()
-export const CARTS_DAO = process.env.PERSISTENCE === "MONGO" ?    new cartsLocal() : new cartMongo()
+//Mongo
+import {ProductsMongoDao} from "./mongo/product.dao.js"
+import {CarritoMongoDao} from "./mongo/cart.dao.js"
+import { UsersMongoDao } from "./mongo/user.dao.js"
+import { ChatMongoDao } from "./mongo/chat.dao.js"
+import { TicketMongoDao } from "./mongo/ticket.dao.js"
+
+export const product_dao = process.env.PERSISTENCE === "MONGO" ?  new ProductsMongoDao() : new ProductsMemoryDao()
+export const cart_dao = process.env.PERSISTENCE === "MONGO" ?  new CarritoMongoDao() : new CarritoMemoryDao()
+export const user_dao = process.env.PERSISTENCE === "MONGO" ? new UsersMongoDao() : new UsersMemoryDao()
+export const message_dao= process.env.PERSISTENCE === "MONGO" ?  new ChatMongoDao() : new ChatMemoryDao()
+export const ticket_dao = process.env.PERSISTENCE === "MONGO" ? new TicketMongoDao() : new TicketMemoryDao()

@@ -3,13 +3,11 @@ import { isValidPassword } from "../utils.js";
 import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
 import UserModel from "../dao/mongo/models/user.model.js";
+import UserDTO from "../dao/DTO/user.dto.js";
 
 const router = Router();
+// const userServise = new UserDTO();
 
-//Ruta por si falla el registro
-router.get("/failRegister", (req, res) => {
-    res.send({ error: "Error register" })
-})
 
 //Login con jwt   
 router.post("/login", async (req, res) => {
@@ -31,6 +29,11 @@ router.post("/login", async (req, res) => {
             return res.json({ status: "success" })
         }
     }
+})
+
+//Ruta si falla el login
+router.get("/failLogin", (req, res) => {
+    res.send({ error: "Error login" })
 })
 
 router.get("/current", passportCall("jwt"), async (req, res) => {
@@ -58,9 +61,10 @@ router.post("/signup", passport.authenticate("register", {
             last_name: req.user.last_name,
             email: req.user.email,
             age: req.user.age,
+            cart: req.user.cart,     
         };
 
-        console.log(req.session.user);
+        // console.log("estan llegando ??", req.session.user);
 
         res.status(200).json({
             status: "OK",
@@ -77,10 +81,11 @@ router.post("/signup", passport.authenticate("register", {
     }
 });
 
-//Ruta si falla el login
-router.get("/failLogin", (req, res) => {
-    res.send({ error: "Error login" })
+//Ruta por si falla el registro
+router.get("/failRegister", (req, res) => {
+    res.send({ error: "Error register" })
 })
+
 
 //Registro con github
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => { })

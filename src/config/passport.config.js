@@ -6,7 +6,8 @@ import UserModel from "../dao/mongo/models/user.model.js";
 import { createHash } from "../utils.js";
 import dotenv from "dotenv";
 // import CartModel from "../dao/mongoManager/models/cart.model.js";
-import jwt, {ExtractJwt} from "passport-jwt"
+import jwt, {ExtractJwt} from "passport-jwt";
+import { crearCarrito } from "../controller/cart.controller.js";
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ const GithubClientSecret = process.env.GITHUB_CLIENT_SECRET
 const GithubURL = process.env.GITHUB_URL_CALLBACK
 
 const intializePassport = async () => {
+    const cart =  await crearCarrito()
+    // console.log(cart);
     passport.use("register", new LocalStrategy({
         passReqToCallback: true,
         usernameField: "email"
@@ -33,7 +36,7 @@ const intializePassport = async () => {
                     last_name,
                     email,
                     age,
-                    // cart: cart.id,
+                    cart: cart._id,
                     role: "user",
                     password: createHash(password)
                 }
