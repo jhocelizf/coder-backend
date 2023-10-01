@@ -20,7 +20,7 @@
             <form action="/api/carts/{{@root.idCart}}/product/{{_id}}" method="post">
                 <label for="quantity-{{_id}}">Cantidad:</label>
                 <input type="number" name="quantity" id="quantity-{{_id}}" value="1" min="1">
-                <button type="submit">Agregar al carrito</button>
+                <button type="submit" id="{{this._id}}">Agregar al carrito</button>
             </form>
         </div>
     </div>

@@ -4,7 +4,7 @@ configuration()
 
 //Memory
 import {ProductsMemoryDao} from "./memory/products.dao.js"
-import {CarritoMemoryDao} from "./memory/cart.dao.js "
+import {CarritoMemoryDao} from "./memory/cart.dao.js"
 import { UsersMemoryDao } from "./memory/users.dao.js"
 import { ChatMemoryDao } from "./memory/chat.dao.js"
 import { TicketMemoryDao } from "./memory/ticket.dao.js"
