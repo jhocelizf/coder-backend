@@ -1,7 +1,7 @@
 import { Router } from "express";
 // import { ProductManager } from "../services/ProductManager.js";
 // import ProductModel from "../dao/mongoManager/models/product.model.js";
-import { getProductos, getProductByID, modifyProducto, deleteProducto, saveProducto } from "../controller/products.controller.js"
+import { getProductos, getProductByID, modifyProducto, deleteProducto, saveProducto, createProducts } from "../controller/products.controller.js"
 
 const router = Router();
 let products = [];
@@ -18,5 +18,7 @@ router.put("/:pid",modifyProducto)
 router.delete("/:pid",deleteProducto)
 //Agregar un producto
 router.post("/agregarProducto",saveProducto)
+
+router.post("/mockingproducts",createProducts)
 
 export default router;

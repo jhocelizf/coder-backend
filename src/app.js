@@ -27,10 +27,19 @@ import { message_dao } from "./dao/index.js";
 import { product_dao } from "./dao/index.js";
 import { ProductsRepository } from "./dao/repository/product.repository.js";
 import { ChatRepository } from "./dao/repository/chat.repository.js";
+import compression from "express-compression"
+
+
 
 configuration()
 // Inicializar express
 const app = express();
+
+//Compresión de archivos
+app.use(compression({
+    brotli: {enabled: true,zlib:{}}
+}))
+
 app.use(cookieParser("C0D3RS3CR3T"));
 
 const PORT = process.env.PORT 

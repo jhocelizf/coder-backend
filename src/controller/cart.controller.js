@@ -1,17 +1,29 @@
 import { cart_dao } from "../dao/index.js";
 import { product_dao } from "../dao/index.js"
 import Tickets from "../dao/fileManager/ticket.manager.js"
+import { CustomErrors } from "../errors/customErrors.js";
+import { Errors } from "../errors/errors.js";
 
 const ticketManager = new Tickets();
 
 
 async function crearCarrito(req, res) {
-    const carrito = {
-        products: []
+    try {
+        const cart = {
+            products: []
+        }
+        const result = await cart_dao.saveCart(cart)
+        res.json({ status: "Success", result })
+    } catch (err) {
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error create cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({ status: "error", error })
     }
-    let result = await cart_dao.saveCart(carrito)
-    // res.json({ message: "Carrito creado correctamente", result })
-    return result
 }
 
 async function getCarritoById(req, res) {
@@ -20,7 +32,14 @@ async function getCarritoById(req, res) {
         let result = await cart_dao.getCartById(cid)
         res.json({ message: "Carrito seleccionado", result })
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error get cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -30,7 +49,14 @@ async function saveProductInCart(req, res) {
         const result = await cart_dao.saveProductCart(cid, pid)
         res.json({ status: "Success", message: "Ok", result })
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error save product in cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -41,7 +67,14 @@ async function updateCarrito(req, res) {
         const result = await cart_dao.updateCart(cid, data)
         res.status(201).json({ "message": "Carrito actualizado", result })
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error update cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -52,7 +85,14 @@ async function updateQuantityProductsCarrito(req, res) {
         const result = await cart_dao.updateQuantityProductsCart(cid, pid, cantidad)
         res.send(result)
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error update quantity cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -62,7 +102,14 @@ async function deleteProductsCarrito(req, res) {
         const result = await cart_dao.deleteProductsCart(cid)
         res.json({ status: result, message: "Ok" })
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error delete products in cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -73,7 +120,14 @@ async function deleteProductCarrito(req, res) {
         const result = await cart_dao.deleteProductCart(cid, pid)
         res.json({ status: result, message: "Ok" })
     } catch (err) {
-        console.log(err)
+        const error = CustomErrors.generateError({
+            name: "Cart Error",
+            message: "Error delete product in cart",
+            cause: err,
+            code: Errors.DATABASE_ERROR
+        })
+        console.log(error)
+        res.json({status: "error", error})
     }
 }
 
@@ -139,7 +193,7 @@ async function purchase(req, res) {
                 const quantity = noStockProduct.quantity;
                 cart.products.push({ id: productID, quantity: parseInt(quantity) })
             }
-            await cartDAO.save(cart)
+            await cart_dao.save(cart)
             const ticket = await ticketManager.getByCode(code)
 
             data.ticket = ticket._id

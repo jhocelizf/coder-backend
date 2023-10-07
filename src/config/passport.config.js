@@ -18,7 +18,7 @@ const GithubClientSecret = process.env.GITHUB_CLIENT_SECRET
 const GithubURL = process.env.GITHUB_URL_CALLBACK
 
 const intializePassport = async () => {
-    const cart =  await crearCarrito()
+    // const cart =  await crearCarrito()
     // console.log(cart);
     passport.use("register", new LocalStrategy({
         passReqToCallback: true,
