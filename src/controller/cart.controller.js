@@ -3,11 +3,13 @@ import { product_dao } from "../dao/index.js"
 import Tickets from "../dao/fileManager/ticket.manager.js"
 import { CustomErrors } from "../errors/customErrors.js";
 import { Errors } from "../errors/errors.js";
+import { logger } from "../dao/index.js";
 
 const ticketManager = new Tickets();
 
 
 async function crearCarrito(req, res) {
+    req.logger = logger
     try {
         const cart = {
             products: []
@@ -21,12 +23,13 @@ async function crearCarrito(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({ status: "error", error })
     }
 }
 
 async function getCarritoById(req, res) {
+    req.logger = logger
     try {
         const { cid } = req.params
         let result = await cart_dao.getCartById(cid)
@@ -38,12 +41,13 @@ async function getCarritoById(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function saveProductInCart(req, res) {
+    req.logger = logger
     try {
         const { cid, pid } = req.params;
         const result = await cart_dao.saveProductCart(cid, pid)
@@ -55,12 +59,13 @@ async function saveProductInCart(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function updateCarrito(req, res) {
+    req.logger = logger
     try {
         const { cid } = req.params
         const { data } = req.body
@@ -73,12 +78,13 @@ async function updateCarrito(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function updateQuantityProductsCarrito(req, res) {
+    req.logger = logger
     try {
         const { cid, pid } = req.params
         const { cantidad } = req.body
@@ -91,12 +97,13 @@ async function updateQuantityProductsCarrito(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function deleteProductsCarrito(req, res) {
+    req.logger = logger
     try {
         const { cid } = req.params
         const result = await cart_dao.deleteProductsCart(cid)
@@ -108,12 +115,13 @@ async function deleteProductsCarrito(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function deleteProductCarrito(req, res) {
+    req.logger = logger
     try {
         const { cid, pid } = req.params
         console.log(cid, pid)
@@ -126,13 +134,13 @@ async function deleteProductCarrito(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function purchase(req, res) {
-
+    req.logger = logger
     try {
         const { cartId, userId, noStockProduct, detailProducts } = req.body
         const cart = await cart_dao.getById(cartId)
@@ -145,11 +153,11 @@ async function purchase(req, res) {
                 const quantity = detailProducts[i].quantity;
                 amount = amount + product.price * quantity;
                 product.stock = product.stock - quantity;
-                await productDAO.save(product);
+                await product_dao.save(product);
             }
         } else {
             const productID = detailProducts[0].product._id;
-            const product = await productDAO.getById(productID);
+            const product = await product_dao.getById(productID);
             const quantity = detailProducts[0].product.quantity;
             amount = amount + product.price * quantity;
             product.stock = product.stock - quantity;
@@ -204,7 +212,7 @@ async function purchase(req, res) {
         }
 
     } catch (error) {
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
     }
 }
 
