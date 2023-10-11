@@ -54,7 +54,7 @@ async function modifyProducto(req, res) {
                 cause: generateUserErrorInfo({title,description,code,price,stock,category, image}),
                 code: Errors.INCOMPLETE_DATA
             })
-            eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+            req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
             res.json({status: "error", error})
         }  if (!image) {
             req.body.thumbnail = "";
@@ -80,7 +80,7 @@ async function modifyProducto(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
@@ -98,7 +98,7 @@ async function deleteProducto(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
@@ -114,7 +114,7 @@ async function saveProducto(req, res) {
                 cause: generateUserErrorInfo({title,description,code,price,stock,category, image}),
                 code: Errors.INCOMPLETE_DATA
             })
-            eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+            req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
             res.json({status: "error", error})
         } if (!image) {
             req.body.image = "";
@@ -132,7 +132,7 @@ async function saveProducto(req, res) {
                 quantity: 1
             }
             console.log(productoNuevo)
-            const data = await PRODUCTS_DAO.saveProduct(productoNuevo)
+            const data = await product_dao.saveProduct(productoNuevo)
             res.status(201).json({ message: "Producto agregado exitosamente", status: data })
         }
     } catch (err) {
@@ -142,7 +142,7 @@ async function saveProducto(req, res) {
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
@@ -172,7 +172,7 @@ async function createProducts(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        eq.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
