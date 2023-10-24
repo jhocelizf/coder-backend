@@ -161,7 +161,7 @@ async function createProducts(req,res){
                 image: faker.image.url(),
                 quantity: 1
             }
-            const response = await productsService.saveProduct(newProductRandom)
+            const response = await product_dao.saveProduct(newProductRandom)
             console.log(response)
         }
         res.json({status: "Success", message: "All products inserted"})

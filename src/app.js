@@ -28,7 +28,8 @@ import { product_dao } from "./dao/index.js";
 import { ProductsRepository } from "./dao/repository/product.repository.js";
 import { ChatRepository } from "./dao/repository/chat.repository.js";
 import compression from "express-compression"; 
-import { loggerRouter } from "./Routes/logger.router.js"
+import { loggerRouter } from "./router/logger.router.js"
+import { usersRouter } from "./router/users.router.js"
 
 
 configuration()
@@ -107,6 +108,7 @@ app.use("/forgot", forgotRouter);
 app.use("/api/session/", sessionRouter);
 app.use("/api/tickets/", ticketRouter);
 app.use("/loggerTest",loggerRouter);
+app.use("/api/users",usersRouter)
 
 
 const io = new Server(httpServer);

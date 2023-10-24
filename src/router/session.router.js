@@ -4,10 +4,13 @@ import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
 import UserModel from "../dao/mongo/models/user.model.js";
 import UserDTO from "../dao/DTO/user.dto.js";
+import { transport } from "../mailler/nodemailer.js";
+import { createHash } from "../utils.js";
 
 const router = Router();
 // const userServise = new UserDTO();
 
+let userTemp = ""
 
 //Login con jwt   
 router.post("/login", async (req, res) => {
@@ -61,7 +64,7 @@ router.post("/signup", passport.authenticate("register", {
             last_name: req.user.last_name,
             email: req.user.email,
             age: req.user.age,
-            cart: req.user.cart,     
+            cart: req.user.cart,
         };
 
         // console.log("estan llegando ??", req.session.user);
@@ -102,5 +105,52 @@ router.get("/githubcallback", passport.authenticate("github", { failureRedirect:
     res.redirect("/")
 })
 
+//Recuperar contraseña
+sessionRouter.get("/recover", (req, res) => {
+    res.render("recoverPassword", { title: "Recover password", script: "recoverPassword.js", style: "recoverPassword.css", PORT: process.env.PORT })
+})
+
+sessionRouter.post("/recovePassword", async (req, res) => {
+    const { mail } = req.body
+    try {
+        await transport.sendMail({
+            from: "Forgot password <coder123@gmail.com>",
+            to: mail,
+            subject: "Forgot password",
+            headers: {
+                'Expiry-Date': new Date(Date.now() + 3600 * 1000).toUTCString()
+            },
+            html: `
+            <h1>Forgot password</h1>
+         <a href="http://localhost:${process.env.PORT}/replacePassword"><button>Recuperar contraseña</button></a>
+        `
+        })
+        userTemp = await userService.getUserByEmail(mail)
+        res.json({ status: "success", message: "Mail sended" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+sessionRouter.get("/replacePassword", (req, res) => {
+    res.render("replacePassword", { title: "Replace Password", style: "replacePassword.css", script: "replacePassword.js" })
+})
+
+sessionRouter.post("/replace", async (req, res) => {
+    try {
+        const { pass } = req.body
+        const user = await userService.getUserByEmail(userTemp.email)
+        console.log(user.password)
+        if (isValidPassword(pass, user.password)) {
+            return res.json({ status: "error", message: "same password" })
+        } else {
+            user.password = createHash(pass)
+            const data = await userService.modifyUser(user.id, user)
+            res.json({ status: "Success", message: "Password replaced", data })
+        }
+    } catch (err) {
+        console.log(err)
+    }
+})
 
 export default router;

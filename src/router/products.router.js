@@ -6,10 +6,10 @@ import { getProductos, getProductByID, modifyProducto, deleteProducto, saveProdu
 const router = Router();
 let products = [];
 
-// 
-
 //Tomar productos
 router.get("/",getProductos)
+
+router.get("/mockingproducts",createProducts)
 //Tomar producto por id
 router.get("/:pid",getProductByID)
 //Modificar un producto
@@ -19,6 +19,6 @@ router.delete("/:pid",deleteProducto)
 //Agregar un producto
 router.post("/agregarProducto",saveProducto)
 
-router.post("/mockingproducts",createProducts)
+
 
 export default router;

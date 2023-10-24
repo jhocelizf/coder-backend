@@ -25,4 +25,7 @@ export class UsersRepository{
     async getUserById(id){
         return await this.dao.getUserById(id)
     }
+    async modifyUser(id,user){
+        return await this.dao.modifyUser(id,user)
+    }
 }
