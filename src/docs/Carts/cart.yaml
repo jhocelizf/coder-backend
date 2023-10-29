@@ -82,7 +82,7 @@ paths:
           description: Error del servidor
   /carts/{cid}/products/{pid}:
     put:
-      summary: Actualiza cantidad de ejemplares del producto en un carrito
+      summary: Actualizar cantidad de ejemplares del producto en un carrito
       tags:
         - Carts
       parameters:

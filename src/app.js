@@ -90,7 +90,7 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.1",
         info: {
-            title: "Documentacion de mi proyecto",
+            title: "Documentación de mi proyecto",
             description: "Acciones de las rutas products y carts",
         },
     },

@@ -62,7 +62,7 @@ paths:
           description: "Error del servidor"
     #Actualizar producto especifico
     put:
-      summary: Actualiza un producto existente
+      summary: Actualizar un producto existente
       tags:
         - Products
       parameters:
