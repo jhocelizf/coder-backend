@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
-import { Command } from "commander"
+import { Command } from "commander";
 
-/* function configuration(){
+function configuration(){
     const command = new Command()
     command.option("--mode <mode>", "Modo de desarrollo", "prods") 
     command.parse()
@@ -9,9 +9,9 @@ import { Command } from "commander"
     dotenv.config({path: mode === "PRODUCTION" ? "./dev-env" : "./.env"});
 }
 
-export {configuration}  */
+export {configuration}  
 
-function configuration() {
+/* function configuration() {
     const command = new Command();
     command.option("--mode <mode>", "Modo de desarrollo", "prods");
     command.parse();
@@ -44,4 +44,4 @@ function configuration() {
     }
 }
 
-export { configuration };
+export { configuration }; */

@@ -1,18 +1,17 @@
 import nodemailer from "nodemailer"
-import { configuration } from "../config.js"
+import { configuration } from "../config/config.js"
 
 configuration()
 
 export const transport = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
+    service: "gmail",
+    port: 25,
     secure: true,
     auth: {
-        user: process.env.USER_GOOGLE,
-        pass: process.env.PASS_GOOGLE
+        user: process.env.MAILING_USER,
+        pass: process.env.MAILING_PASSWORD
     }
 })
-
-transport.verify().then(()=>{
+transport.verify().then(() => {
     console.log("Ready for send emails")
 })

@@ -3,7 +3,7 @@ import { isValidPassword } from "../utils.js";
 import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
 import UserModel from "../dao/mongo/models/user.model.js";
-import UserDTO from "../dao/DTO/user.dto.js";
+import UsersDTO from "../dao/DTO/user.dto.js";
 import { transport } from "../mailler/nodemailer.js";
 import { createHash } from "../utils.js";
 
@@ -106,11 +106,10 @@ router.get("/githubcallback", passport.authenticate("github", { failureRedirect:
 })
 
 //Recuperar contraseña
-sessionRouter.get("/recover", (req, res) => {
+router.get("/recover", (req, res) => {
     res.render("recoverPassword", { title: "Recover password", script: "recoverPassword.js", style: "recoverPassword.css", PORT: process.env.PORT })
 })
-
-sessionRouter.post("/recovePassword", async (req, res) => {
+router.post("/recovePassword", async (req, res) => {
     const { mail } = req.body
     try {
         await transport.sendMail({
@@ -131,12 +130,11 @@ sessionRouter.post("/recovePassword", async (req, res) => {
         console.log(err)
     }
 })
-
-sessionRouter.get("/replacePassword", (req, res) => {
+router.get("/replacePassword", (req, res) => {
     res.render("replacePassword", { title: "Replace Password", style: "replacePassword.css", script: "replacePassword.js" })
 })
 
-sessionRouter.post("/replace", async (req, res) => {
+router.post("/replace", async (req, res) => {
     try {
         const { pass } = req.body
         const user = await userService.getUserByEmail(userTemp.email)

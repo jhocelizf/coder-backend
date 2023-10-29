@@ -1,4 +1,4 @@
-import { UsersDto } from "../DTO/users.dto.js"
+import UsersDto from "../DTO/user.dto.js"
 
 export class UsersRepository{
     constructor(dao){

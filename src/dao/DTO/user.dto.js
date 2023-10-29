@@ -1,4 +1,4 @@
-export default class UserDTO{
+export default class UsersDTO{
     constructor(user){
         this.full_name= user.first_name + " " + user.last_name
         this.age = user.age

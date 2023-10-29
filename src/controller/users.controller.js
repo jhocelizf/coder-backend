@@ -1,10 +1,10 @@
-import { USER_DAO } from "../dao/index.js";
+import { user_dao } from "../dao/index.js";
 import { UsersRepository } from "../dao/repository/users.repository.js";
-import { CustomErrors } from "../services/errors/customErrors.js";
-import { Errors } from "../services/errors/errors.js";
-import { LOGGER } from "../dao/index.js";
+import { CustomErrors } from "../errors/customErrors.js"
+import { Errors } from "../errors/errors.js";
+import { logger as LOGGER } from "../dao/index.js";
 
-const userService = new UsersRepository(USER_DAO)
+const userService = new UsersRepository(user_dao)
 
 async function changeRoleUser(req,res){
     req.logger = LOGGER

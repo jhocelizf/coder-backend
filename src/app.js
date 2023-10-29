@@ -1,9 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
+import passport from "passport";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import compression from "express-compression";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUiExpress from "swagger-ui-express";
+
 import productRouter from "./router/products.router.js";
 import cartRouter from "./router/cart.router.js";
 import viewsRouter from "./router/views.router.js";
-// import realtimeRouter from "./router/realTimeProduct.router.js";
 import chatRouter from "./router/chat.router.js";
 import loginRouter from "./router/login.router.js";
 import signupRouter from "./router/signup.router.js";
@@ -16,18 +23,12 @@ import { __filename, __dirname, authToken } from "./utils.js";
 import dotenv from "dotenv";
 import MessageModel from "./dao/mongo/models/message.model.js";
 import ProductModel from "./dao/mongo/models/product.model.js";
-import MongoStore from "connect-mongo";
-import passport from "passport";
-import session from "express-session";
-import cookieParser from "cookie-parser";
 import intializePassport from "./config/passport.config.js"
 import { configuration } from "./config/config.js"
-import { Command } from "commander";
 import { message_dao } from "./dao/index.js";
 import { product_dao } from "./dao/index.js";
 import { ProductsRepository } from "./dao/repository/product.repository.js";
 import { ChatRepository } from "./dao/repository/chat.repository.js";
-import compression from "express-compression"; 
 import { loggerRouter } from "./router/logger.router.js"
 import { usersRouter } from "./router/users.router.js"
 
@@ -38,21 +39,21 @@ const app = express();
 
 //Compresión de archivos
 app.use(compression({
-    brotli: {enabled: true,zlib:{}}
+    brotli: { enabled: true, zlib: {} }
 }))
 
 app.use(cookieParser("C0D3RS3CR3T"));
 
-const PORT = process.env.PORT 
+const PORT = process.env.PORT
 const MONGO_URI = process.env.MONGO_URI;
-const ENVIRONMENT = process.env.ENVIRONMENT 
+const ENVIRONMENT = process.env.ENVIRONMENT
 
 //Inicializar el servidor con socket
-const httpServer = app.listen(PORT,()=>{
-    console.log(`El servidor esta corriendo en el puerto ${PORT} en modo ${ENVIRONMENT}`) 
+const httpServer = app.listen(PORT, () => {
+    console.log(`El servidor esta corriendo en el puerto ${PORT} en modo ${ENVIRONMENT}`)
 })
 
-httpServer.on("error",(err)=>{
+httpServer.on("error", (err) => {
     console.log(err)
 })
 
@@ -84,6 +85,21 @@ app.use(
     })
 );
 
+//SwaggerOptions
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.1",
+        info: {
+            title: "Documentacion de mi proyecto",
+            description: "Acciones de las rutas products y carts",
+        },
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`],
+};
+
+//conectamos Swagger
+const specs = swaggerJSDoc(swaggerOptions);
+
 //Passport
 intializePassport()
 app.use(passport.initialize())
@@ -107,8 +123,9 @@ app.use("/signup", signupRouter);
 app.use("/forgot", forgotRouter);
 app.use("/api/session/", sessionRouter);
 app.use("/api/tickets/", ticketRouter);
-app.use("/loggerTest",loggerRouter);
-app.use("/api/users",usersRouter)
+app.use("/loggerTest", loggerRouter);
+app.use("/api/users", usersRouter);
+app.use("/api-docs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 
 const io = new Server(httpServer);
