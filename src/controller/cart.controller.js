@@ -70,7 +70,7 @@ async function updateCarrito(req, res) {
         const { cid } = req.params
         const { data } = req.body
         const result = await cart_dao.updateCart(cid, data)
-        res.status(201).json({ "message": "Carrito actualizado", result })
+        res.status(200).json({ "message": "Carrito actualizado", result })
     } catch (err) {
         const error = CustomErrors.generateError({
             name: "Cart Error",
