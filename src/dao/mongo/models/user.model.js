@@ -18,8 +18,25 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user"
+    },
+    documents: [
+        {
+            name: {
+                type: String,
+                required: true
+            },
+            reference: {
+                type: String,
+                required: true
+            }
+        }
+    ],
+    last_connection: {
+        type: Date,
+        default: null
     }
-});
+})
+
 
 const UserModel = mongoose.model(userCollection, userSchema);
 

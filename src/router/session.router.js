@@ -90,6 +90,25 @@ router.get("/failRegister", (req, res) => {
 })
 
 
+// cerra sesion
+sessionRouter.post("/logout", (req, res) => {
+    req.session.destroy(async err => {
+        if (!err) {
+            const { email } = req.body
+            const user = await userService.getUserByEmail(email)
+            user.last_connection = new Date()
+            const response = await userService.modifyUser(user.id, user)
+            return res.json({
+            message: "Sesión cerrada", response
+            })
+        } else {
+            return res.json({
+                message: "Error al cerrar sesión"
+            })
+        }
+    })
+})
+
 //Registro con github
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => { })
 

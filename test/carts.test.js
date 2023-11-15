@@ -9,7 +9,7 @@ let idCart = ""
 describe("Tests de los endpoints de la ruta carts", () => {
     describe("/carts POST", () => {
         it("Deberia crear un carrito", async () => {
-            const { statusCode, ok, _body } = await requester.post("/carts").send()
+            const { statusCode, ok, _body } = await requester.post("/cart").send()
             idCart = _body.result._id
             expect(statusCode).to.equal(200)
             expect(ok).to.be.true
