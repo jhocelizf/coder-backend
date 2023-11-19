@@ -91,7 +91,7 @@ router.get("/failRegister", (req, res) => {
 
 
 // cerra sesion
-sessionRouter.post("/logout", (req, res) => {
+router.post("/logout", (req, res) => {
     req.session.destroy(async err => {
         if (!err) {
             const { email } = req.body
