@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 // import CartModel from "../dao/mongoManager/models/cart.model.js";
 import jwt, {ExtractJwt} from "passport-jwt";
 import { crearCarrito } from "../controller/cart.controller.js";
+import { cart_dao } from "../dao/index.js";
 
 dotenv.config();
 
@@ -30,16 +31,30 @@ const intializePassport = async () => {
             const userAccount = await UserModel.findOne({ email: email })
             if (userAccount) {
                 return done(null, false, { message: "Tu usuario ya existe" })
-            } else {
-                const newUser = {
-                    first_name,
-                    last_name,
-                    email,
-                    age,
-                    cart: cart._id,
-                    role: "user",
-                    password: createHash(password)
-                }
+            }else{
+                    const CART = {
+                        products : []
+                    }
+                    let cart = await cart_dao.saveCart(CART) 
+                    const newUser = { 
+                        first_name,
+                        last_name,
+                        email,
+                        age,
+                        cart: cart.id,
+                        role: "user", 
+                        password: createHash(password)
+                    }
+            // } else {
+            //     const newUser = {
+            //         first_name,
+            //         last_name,
+            //         email,
+            //         age,
+            //         cart: cart._id,
+            //         role: "user",
+            //         password: createHash(password)
+            //     }
                 const result = await UserModel.create(newUser)
                 console.log(result)
                 return done(null, result)

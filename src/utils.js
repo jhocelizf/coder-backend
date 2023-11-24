@@ -43,6 +43,12 @@ export const authAdmin = (req,res,next)=>{
     return res.send({status: "error", message: "Is not admin"})
 }
 
+
+export const authOnlyAdmin = (req,res,next)=>{
+    if(req.user.user.role === "admin") return next() 
+    return res.send({status: "error", message: "Is not admin"})
+}
+
 export const passportCall = (strategy)=>{
     return async(req,res,next)=>{
         passport.authenticate(strategy,(error,user,info)=>{

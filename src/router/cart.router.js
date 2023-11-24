@@ -1,7 +1,8 @@
 import { Router } from "express";
 // import ProductModel from "../dao/mongoManager/models/product.model.js";
 // import CartModel from "../dao/mongoManager/models/cart.model.js";
-import { crearCarrito, getCarritoById, saveProductInCart, updateCarrito, updateQuantityProductsCarrito, deleteProductsCarrito, deleteProductCarrito, purchase} from "../controller/cart.controller.js"
+import { crearCarrito, getCarritoById, saveProductInCart, updateCarrito, updateQuantityProductsCarrito, deleteProductsCarrito, deleteProductCarrito, purchaseProducts} from "../controller/cart.controller.js"
+
 const router = Router();
 
 // crea carrito
@@ -24,6 +25,7 @@ router.put("/:cid/products/:pid",updateQuantityProductsCarrito)
 //Eliminar todos los productos del carrito
 router.delete("/:cid",deleteProductsCarrito)
 
-router.post("/purchase", purchase)
+// Comprar productos del carrito y generar orden
+router.post("/:cid/purchase",purchaseProducts)
 
 export default router;

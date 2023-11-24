@@ -31,6 +31,10 @@ import { ProductsRepository } from "./dao/repository/product.repository.js";
 import { ChatRepository } from "./dao/repository/chat.repository.js";
 import { loggerRouter } from "./router/logger.router.js"
 import { usersRouter } from "./router/users.router.js"
+import { user_dao} from "./dao/index.js"
+import { UsersRepository } from "./dao/repository/users.repository.js"
+import { transport } from "./mailler/nodemailer.js"
+import { paymentsRouter } from "./router/payment.router.js"
 
 
 configuration()
@@ -126,6 +130,8 @@ app.use("/api/tickets/", ticketRouter);
 app.use("/loggerTest", loggerRouter);
 app.use("/api/users", usersRouter);
 app.use("/api-docs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
+app.use(paymentsRouter)
+
 
 
 const io = new Server(httpServer);

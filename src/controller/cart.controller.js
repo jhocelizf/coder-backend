@@ -4,9 +4,10 @@ import Tickets from "../dao/fileManager/ticket.manager.js"
 import { CustomErrors } from "../errors/customErrors.js";
 import { Errors } from "../errors/errors.js";
 import { logger } from "../dao/index.js";
+import { configuration } from "../config/config.js";
+import axios from "axios"
 
 const ticketManager = new Tickets();
-
 
 async function crearCarrito(req, res) {
     req.logger = logger
@@ -42,7 +43,7 @@ async function getCarritoById(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -60,7 +61,7 @@ async function saveProductInCart(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -79,7 +80,7 @@ async function updateCarrito(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -98,7 +99,7 @@ async function updateQuantityProductsCarrito(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -116,7 +117,7 @@ async function deleteProductsCarrito(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -135,85 +136,78 @@ async function deleteProductCarrito(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
-async function purchase(req, res) {
-    req.logger = logger
+async function purchaseProducts(req, res) {
+    const { totalAmount, email, code } = req.body
     try {
-        const { cartId, userId, noStockProduct, detailProducts } = req.body
-        const cart = await cart_dao.getById(cartId)
-        const user = await userManager.getById(userId)
-        let amount = 0;
-        if (detailProducts.length) {
-            for (let i = 0; i < detailProducts.length; i++) {
-                const productID = detailProducts[i].product._id;
-                const product = await product_dao.getById(productID);
-                const quantity = detailProducts[i].quantity;
-                amount = amount + product.price * quantity;
-                product.stock = product.stock - quantity;
-                await product_dao.save(product);
+        const order = {
+            intent: "CAPTURE",
+            purchase_units: [
+                {
+                    amount: {
+                        currency_code: "USD",
+                        value: totalAmount.toString(),
+                    },
+                },
+            ],
+            application_context: {
+                brand_name: "ecommerce.com",
+                landing_page: "NO_PREFERENCE",
+                user_action: "PAY_NOW",
+                return_url: `http://localhost:8080/capture-order`,
+                cancel_url: `http://localhost:8080/cancel-order`,
+            },
+        };
+
+        // format the body
+        const params = new URLSearchParams();
+        params.append("grant_type", "client_credentials");
+
+        // Generate an access token
+        const {
+            data: { access_token },
+        } = await axios.post(
+            "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+            params,
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                auth: {
+                    username: process.env.PAYPAL_API_CLIENT,
+                    password: process.env.PAYPAL_API_KEY,
+                },
             }
-        } else {
-            const productID = detailProducts[0].product._id;
-            const product = await product_dao.getById(productID);
-            const quantity = detailProducts[0].product.quantity;
-            amount = amount + product.price * quantity;
-            product.stock = product.stock - quantity;
-            await product_dao.save(product);
-        }
+        );
 
-
-
-        const datetime = new Date()
-
-        const purchase_datetime = datetime.toISOString().split('T')[0] + "-" + datetime.toLocaleTimeString();
-
-        const purcharser = user.email
-
-        const tickets = await ticketManager.getAll();
-
-
-        let code = "";
-
-        if (tickets.length >= 0) {
-            const numberCode = tickets.length + 1
-
-            code = "A " + numberCode
-        } else {
-            code = "A " + 1
-        }
-        const data = { code, purchase_datetime, amount, purcharser };
-
-        if (amount > 0) {
-            await ticketManager.save(data);
-
-            await emptyCart(cartId);
-            if (noStockProduct.length) {
-                for (let i = 0; i < noStockProduct.length; i++) {
-                    const productID = noStockProduct[i].product._id;
-                    const quantity = noStockProduct[i].quantity;
-                    cart.products.push({ id: productID, quantity: parseInt(quantity) })
-                }
-            } else {
-                const productID = noStockProduct.product._id;
-                const quantity = noStockProduct.quantity;
-                cart.products.push({ id: productID, quantity: parseInt(quantity) })
+        // make a request
+        const response = await axios.post(
+            `${process.env.PAYPAL_API}/v2/checkout/orders`,
+            order,
+            {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
             }
-            await cart_dao.save(cart)
-            const ticket = await ticketManager.getByCode(code)
+        );
 
-            data.ticket = ticket._id
-
-            res.status(200).json(data)
-        } else {
-            res.status(406).json("No se pudo completar la compra debido a falta de stock.")
+        const newTicket = {
+            code,
+            purchase_datetime: new Date(),
+            amount: totalAmount,
+            purchaser: email
         }
+        await TICKET_DAO.saveTicket(newTicket)
 
-    } catch (error) {
-        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
+        res.json(response.data)
+    } catch (err) {
+        console.log(err)
+        res.json({ message: "Something goes wrong" })
     }
 }
 
-export { crearCarrito, getCarritoById, saveProductInCart, updateCarrito, updateQuantityProductsCarrito, deleteProductsCarrito, deleteProductCarrito, purchase }
+
+export { crearCarrito, getCarritoById, saveProductInCart, updateCarrito, updateQuantityProductsCarrito, deleteProductsCarrito, deleteProductCarrito, purchaseProducts }

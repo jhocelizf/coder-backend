@@ -5,6 +5,12 @@ import { generateUserErrorInfo } from "../errors/info.js";
 import { CustomErrors } from "../errors/customErrors.js";
 import { Errors } from "../errors/errors.js"
 import { logger } from "../dao/index.js";
+import { user_dao } from "../dao/index.js";
+import { UsersRepository } from "../dao/repository/users.repository.js";
+import { transport } from "../mailler/nodemailer.js";
+
+
+const userService = new UsersRepository(user_dao)
 
 async function getProductos(req, res) {
     req.logger = logger
@@ -19,7 +25,7 @@ async function getProductos(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -37,7 +43,7 @@ async function getProductByID(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
@@ -47,19 +53,19 @@ async function modifyProducto(req, res) {
         const { pid } = req.params
         const { title, description, code, price, stock, category, image, } = req.body
         if (!title || !description || !code || !price || !stock || !category) {
-            return res.status(500).json({message : "Faltan datos"})
+            return res.status(500).json({ message: "Faltan datos" })
             const error = CustomErrors.generateError({
                 name: "Faltan datos",
                 message: "Invalid types",
-                cause: generateUserErrorInfo({title,description,code,price,stock,category, image}),
+                cause: generateUserErrorInfo({ title, description, code, price, stock, category, image }),
                 code: Errors.INCOMPLETE_DATA
             })
             req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-            res.json({status: "error", error})
-        }  if (!image) {
+            res.json({ status: "error", error })
+        } if (!image) {
             req.body.thumbnail = "";
         }
-            else {
+        else {
             const producto = {
                 title: title,
                 description: description,
@@ -81,16 +87,32 @@ async function modifyProducto(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
-async function deleteProducto(req, res) {
+async function deleteProduct(req, res) {
     req.logger = logger
     try {
         const { pid } = req.params
-        const data = await product_dao.deleteProduct(pid)
-        res.send(data)
+        const product = await productsService.getProductById(pid)
+        const user = await userService.getUserByEmail(product.owner)
+        if (user.role === "premium") {
+            const result = await productsService.deleteProduct(pid)
+            await transport.sendMail({
+                from: "Product deleted <coder123@gmail.com>",
+                to: user.email,
+                subject: "User Product Deleted",
+                headers: {
+                    'Expiry-Date': new Date(Date.now() + 3600 * 1000).toUTCString()
+                },
+                html: `<h1>Tu producto ha sido eliminado</h1>`
+            })
+            res.status(200).json({ status: "Success", result })
+        } else {
+            const result = await productsService.deleteProduct(pid)
+            res.status(200).json({ status: "Success", result })
+        }
     } catch (err) {
         const error = CustomErrors.generateError({
             name: "Products Error",
@@ -99,9 +121,10 @@ async function deleteProducto(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
+
 
 async function saveProducto(req, res) {
     req.logger = logger
@@ -111,11 +134,11 @@ async function saveProducto(req, res) {
             const error = CustomErrors.generateError({
                 name: "Faltan datos",
                 message: "Invalid types",
-                cause: generateUserErrorInfo({title,description,code,price,stock,category, image}),
+                cause: generateUserErrorInfo({ title, description, code, price, stock, category, image }),
                 code: Errors.INCOMPLETE_DATA
             })
             req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-            res.json({status: "error", error})
+            res.json({ status: "error", error })
         } if (!image) {
             req.body.image = "";
         }
@@ -143,13 +166,13 @@ async function saveProducto(req, res) {
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
-async function createProducts(req,res){
+async function createProducts(req, res) {
     req.logger = logger
-    try{
-        for(let i = 0; i<100; i++){
+    try {
+        for (let i = 0; i < 100; i++) {
             const newProductRandom = {
                 title: faker.commerce.productName(),
                 description: faker.commerce.productDescription(),
@@ -164,8 +187,8 @@ async function createProducts(req,res){
             const response = await product_dao.saveProduct(newProductRandom)
             console.log(response)
         }
-        res.json({status: "Success", message: "All products inserted"})
-    }catch(err){
+        res.json({ status: "Success", message: "All products inserted" })
+    } catch (err) {
         const error = CustomErrors.generateError({
             name: "Products Error",
             message: "Error create products",
@@ -173,8 +196,8 @@ async function createProducts(req,res){
             code: Errors.DATABASE_ERROR
         })
         req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
-        res.json({status: "error", error})
+        res.json({ status: "error", error })
     }
 }
 
-export { getProductos, getProductByID, modifyProducto, deleteProducto, saveProducto, createProducts }
+export { getProductos, getProductByID, modifyProducto, deleteProduct, saveProducto, createProducts }

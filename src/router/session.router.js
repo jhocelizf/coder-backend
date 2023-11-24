@@ -140,7 +140,7 @@ router.post("/recovePassword", async (req, res) => {
             },
             html: `
             <h1>Forgot password</h1>
-         <a href="http://localhost:${process.env.PORT}/replacePassword"><button>Recuperar contraseña</button></a>
+            <a href="http://localhost:${process.env.PORT}/replacePassword"><button>Recuperar contraseña</button></a>
         `
         })
         userTemp = await userService.getUserByEmail(mail)
