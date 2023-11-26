@@ -34,7 +34,10 @@ async function getCarritoById(req, res) {
     try {
         const { cid } = req.params
         let result = await cart_dao.getCartById(cid)
-        res.json({ message: "Carrito seleccionado", result })
+        // console.log(result);
+        res.render("cart", {result})
+
+        // res.json({ message: "Carrito seleccionado", result })
     } catch (err) {
         const error = CustomErrors.generateError({
             name: "Cart Error",
@@ -52,7 +55,8 @@ async function saveProductInCart(req, res) {
     try {
         const { cid, pid } = req.params;
         const result = await cart_dao.saveProductCart(cid, pid)
-        res.json({ status: "Success", message: "Ok", result })
+        // res.json({ status: "Success", message: "Ok", result })
+        res.render("cart", {result})
     } catch (err) {
         const error = CustomErrors.generateError({
             name: "Cart Error",

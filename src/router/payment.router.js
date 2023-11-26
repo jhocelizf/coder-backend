@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { captureOrder, cancelOrder } from "../Controller/payment.controller.js";
+import { createOrder, captureOrder, cancelOrder } from "../controller/payment.controller.js";
 
 const paymentsRouter = Router()
 
+paymentsRouter.post("/create-order", createOrder);
 paymentsRouter.get("/capture-order",captureOrder)
 paymentsRouter.get("/cancel-order",cancelOrder)
 

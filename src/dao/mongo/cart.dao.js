@@ -63,7 +63,7 @@ export class CarritoMongoDao {
         const productoEnCarrito = carrito.products.findIndex(c => c.product.id === pid)
         if (carrito) {
             if (productoEnCarrito !== -1) {
-                const product = await PRODUCTS_MODEL.findById(pid)
+                const product = await ProductModel.findById(pid)
                 product.quantity = quantity
                 await product.save()
                 return carrito
